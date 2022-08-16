@@ -11,8 +11,7 @@ type MainLayoutProps = {
   description?: string;
 };
 
-// ! This is a site placeholder, replace with your own url
-const siteUrl = 'https://github.com/ccrsxx/next-template';
+const siteUrl = 'https://chat-app-ccrsxx.vercel.app';
 
 export function MainLayout({
   url,
