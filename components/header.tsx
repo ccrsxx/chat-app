@@ -28,7 +28,7 @@ export function Header({ userInfo, loading, error }: HeaderProps): JSX.Element {
       };
 
   return (
-    <header className='flex justify-between text-secondary'>
+    <header className='flex justify-between font-bold text-primary/80'>
       <a
         className='smooth-tab smooth-hover custom-button'
         href='https://github.com/ccrsxx'

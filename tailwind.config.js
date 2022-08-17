@@ -14,7 +14,7 @@ module.exports = {
         secondary: '#b6bbb6'
       },
       animation: {
-        fade: 'fade 300ms ease-in-out'
+        fade: 'fade 500ms ease-in-out'
       },
       keyframes: {
         fade: {

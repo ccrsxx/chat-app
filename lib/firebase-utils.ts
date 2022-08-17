@@ -3,18 +3,14 @@ import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut as signOutAuth,
-  signInWithEmailAndPassword
+  signOut as signOutAuth
 } from 'firebase/auth';
 import {
   query,
-  limit,
   addDoc,
-  getDoc,
-  setDoc,
   orderBy,
-  updateDoc,
   collection,
+  limitToLast,
   getFirestore,
   serverTimestamp
 } from 'firebase/firestore';
@@ -30,7 +26,8 @@ export const messagesRef = collection(db, 'messages');
 
 export const messagesQuery = query(
   messagesRef,
-  orderBy('createdAt', 'asc')
+  orderBy('createdAt', 'asc'),
+  limitToLast(20)
 ).withConverter(messageConverter);
 
 export function signIn(): void {

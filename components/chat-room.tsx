@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { messagesQuery } from '@lib/firebase-utils';
-import { ChatMessage as ChatMessage } from './chat-message';
+import { ChatMessage } from './chat-message';
 import type { Messages } from '@lib/query-converter';
 
 type ChatRoomProps = {
   messages: Messages;
+  currentUserId: string | null;
 };
 
 export function ChatRoom({
-  messages: messagesProp
+  messages: messagesProp,
+  currentUserId
 }: ChatRoomProps): JSX.Element {
   const [messages, setMessages] = useState<Messages>(messagesProp);
   const [value, loading] = useCollectionData(messagesQuery);
@@ -20,11 +22,14 @@ export function ChatRoom({
   }, [value]);
 
   return (
-    <ol className='flex flex-1 flex-col gap-4 overflow-y-scroll'>
+    <ol
+      className='flex flex-1 flex-col gap-4 overflow-x-hidden overflow-y-scroll
+                 rounded-lg bg-neutral-800 px-4 pt-4'
+    >
       {messages.map(({ id, ...rest }) => (
-        <ChatMessage {...rest} key={id} />
+        <ChatMessage currentUserId={currentUserId} {...rest} key={id} />
       ))}
-      <div id='scroll-bottom' />
+      <span id='scroll-bottom' />
     </ol>
   );
 }
