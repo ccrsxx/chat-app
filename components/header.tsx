@@ -1,10 +1,10 @@
-import { signIn, signOut } from '@lib/firebase-utils';
+import { signIn, signOut } from '@lib/firebase/utils';
 import { Button } from '@components/ui/button';
 import {
+  VscLoading,
   RiGithubFill,
   RiGoogleFill,
-  RiLogoutBoxLine,
-  VscLoading
+  RiLogoutBoxLine
 } from '@assets/icons';
 import type { User } from 'firebase/auth';
 

@@ -6,16 +6,18 @@ import {
   signOut as signOutAuth
 } from 'firebase/auth';
 import {
+  doc,
   query,
   addDoc,
   orderBy,
+  deleteDoc,
   collection,
   limitToLast,
   getFirestore,
   serverTimestamp
 } from 'firebase/firestore';
-import { getFirebaseConfig } from './firebase-config';
-import { messageConverter } from './query-converter';
+import { getFirebaseConfig } from './config';
+import { messageConverter } from './converter';
 
 initializeApp(getFirebaseConfig());
 
@@ -58,4 +60,9 @@ export async function sendMessage(text: string): Promise<void> {
     editedAt: null,
     uid
   });
+}
+
+export async function deleteMessage(docId: string): Promise<void> {
+  const docRef = doc(messagesRef, docId);
+  await deleteDoc(docRef);
 }

@@ -12,8 +12,10 @@ type ButtonProps = {
   tabIndex?: number;
   children?: ReactNode;
   className?: string;
+  iconStyle?: string;
   ariaLabel?: string;
-  onClick?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onClick?: (e: any) => void;
 };
 
 export function Button({
@@ -26,6 +28,7 @@ export function Button({
   tabIndex,
   children,
   className,
+  iconStyle,
   ariaLabel,
   onClick
 }: ButtonProps): JSX.Element {
@@ -39,9 +42,9 @@ export function Button({
       tabIndex={tabIndex}
       disabled={disabled}
     >
-      {Icon && !flipped && <Icon />}
+      {Icon && !flipped && <Icon className={iconStyle} />}
       {label}
-      {Icon && flipped && <Icon />}
+      {Icon && flipped && <Icon className={iconStyle} />}
       {children}
     </button>
   );

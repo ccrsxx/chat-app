@@ -9,10 +9,10 @@ export function Triangle({ isCurrentUser }: TriangleProps): JSX.Element {
     <span
       className={cn(
         `absolute top-0 h-0 w-4 border-8 border-t-bubble
-         border-l-bubble border-r-transparent border-b-transparent`,
+         border-l-transparent border-r-bubble border-b-transparent`,
         {
-          '-right-2': isCurrentUser,
-          '-left-2 rotate-90': !isCurrentUser
+          '-right-2 -rotate-90': isCurrentUser,
+          '-left-2': !isCurrentUser
         }
       )}
     />

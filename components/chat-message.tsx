@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import cn from 'clsx';
+import { deleteMessage } from '@lib/firebase/utils';
+import { convertDate } from '@lib/date';
 import { ImageLoader } from '@components/ui/image-loader';
 import { Triangle } from '@components/ui/triangle';
-import { convertDate } from '@lib/date';
+import { MessageOptions } from './message-options';
 
 type ChatItemProps = {
   uid: string;
@@ -56,11 +58,15 @@ export function ChatMessage({
         alt={name}
       />
       <div
-        className={cn('relative flex flex-col rounded-lg bg-bubble py-2 px-4', {
-          'rounded-tr-none': isCurrentUser,
-          'rounded-tl-none': !isCurrentUser
-        })}
+        className={cn(
+          'group relative flex flex-col rounded-lg bg-bubble py-2 px-4',
+          {
+            'rounded-tr-none': isCurrentUser,
+            'rounded-tl-none': !isCurrentUser
+          }
+        )}
       >
+        {isCurrentUser && <MessageOptions />}
         <Triangle isCurrentUser={isCurrentUser} />
         <div className='flex items-center gap-2'>
           <p className='font-medium text-primary'>{name}</p>

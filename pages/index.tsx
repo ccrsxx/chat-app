@@ -1,6 +1,6 @@
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDocs } from 'firebase/firestore';
-import { auth, messagesQuery } from '@lib/firebase-utils';
+import { auth, messagesQuery } from '@lib/firebase/utils';
 import { MainLayout } from '@components/common/main-layout';
 import { Header } from '@components/header';
 import { ChatRoom } from '@components/chat-room';
@@ -9,7 +9,7 @@ import type {
   GetServerSidePropsResult,
   InferGetServerSidePropsType
 } from 'next';
-import type { Messages } from '@lib/query-converter';
+import type { Messages } from '@lib/firebase/converter';
 
 type HomeProps = {
   messages: Messages;
@@ -46,7 +46,7 @@ export default function Home({
         image='/home.png'
       >
         <ChatRoom messages={messages} currentUserId={currentUserId} />
-        <InputBox userInfo={userInfo} />
+        <InputBox currentUserId={currentUserId} />
       </MainLayout>
     </>
   );
