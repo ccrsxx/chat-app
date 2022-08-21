@@ -1,39 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { useIntersection } from '@lib/hooks/useIntersection';
+import { AnimatePresence } from 'framer-motion';
 import { messagesQuery } from '@lib/firebase/utils';
 import { ChatMessage } from './chat-message';
+import type { Ref } from 'react';
 import type { Messages } from '@lib/firebase/converter';
 
 type ChatRoomProps = {
-  messages: Messages;
+  scrollArea: Ref<HTMLOListElement> | null;
+  bottomSpan: Ref<HTMLSpanElement> | null;
+  isAtBottom: boolean;
+  messagesProp: Messages;
   currentUserId: string | null;
+  goToEditMode: (docId: string, text: string) => () => void;
+  scrollToBottom: (input?: boolean) => void;
 };
 
 export function ChatRoom({
-  messages: messagesProp,
-  currentUserId
+  scrollArea,
+  bottomSpan,
+  isAtBottom,
+  messagesProp,
+  currentUserId,
+  goToEditMode,
+  scrollToBottom
 }: ChatRoomProps): JSX.Element {
   const [messages, setMessages] = useState<Messages>(messagesProp);
   const [value, loading] = useCollectionData(messagesQuery);
-
-  const scrollArea = useRef<HTMLOListElement | null>(null);
-  const bottomSpan = useRef<HTMLSpanElement | null>(null);
-
-  const isAtBottom = useIntersection(scrollArea, bottomSpan, {
-    rootMargin: '300px',
-    threshold: 1.0
-  });
-
-  const scrollToBottom = (): void =>
-    void setTimeout(
-      () => bottomSpan.current?.scrollIntoView({ behavior: 'smooth' }),
-      100
-    );
-
-  useEffect(() => {
-    scrollToBottom();
-  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -49,9 +42,16 @@ export function ChatRoom({
                  rounded-lg bg-neutral-800 px-4 pt-4'
       ref={scrollArea}
     >
-      {messages.map(({ ...rest }) => (
-        <ChatMessage currentUserId={currentUserId} {...rest} key={rest.id} />
-      ))}
+      <AnimatePresence initial={false}>
+        {messages.map(({ ...rest }) => (
+          <ChatMessage
+            currentUserId={currentUserId}
+            goToEditMode={goToEditMode}
+            {...rest}
+            key={rest.id}
+          />
+        ))}
+      </AnimatePresence>
       <span id='scroll-bottom' ref={bottomSpan} />
     </ol>
   );

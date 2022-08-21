@@ -17,7 +17,7 @@ export function useIntersection(
     ]: IntersectionObserverEntry[]): void => setIsAtBottom(isIntersecting);
 
     const observer = new IntersectionObserver(intersectionCallback, {
-      root: root?.current,
+      root: root ? root?.current : null,
       rootMargin: options?.rootMargin ?? '0px',
       threshold: options?.threshold ?? 1.0
     });

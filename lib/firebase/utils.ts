@@ -10,9 +10,9 @@ import {
   query,
   addDoc,
   orderBy,
+  updateDoc,
   deleteDoc,
   collection,
-  limitToLast,
   getFirestore,
   serverTimestamp
 } from 'firebase/firestore';
@@ -28,8 +28,7 @@ export const messagesRef = collection(db, 'messages');
 
 export const messagesQuery = query(
   messagesRef,
-  orderBy('createdAt', 'asc'),
-  limitToLast(20)
+  orderBy('createdAt', 'asc')
 ).withConverter(messageConverter);
 
 export function signIn(): void {
@@ -41,7 +40,7 @@ export function signOut(): void {
   void signOutAuth(auth);
 }
 
-export async function sendMessage(text: string): Promise<void> {
+export function sendMessage(text: string): void {
   const {
     displayName: name,
     photoURL,
@@ -52,7 +51,7 @@ export async function sendMessage(text: string): Promise<void> {
     uid: string;
   };
 
-  await addDoc(messagesRef, {
+  void addDoc(messagesRef, {
     name,
     text,
     photoURL,
@@ -62,7 +61,17 @@ export async function sendMessage(text: string): Promise<void> {
   });
 }
 
-export async function deleteMessage(docId: string): Promise<void> {
+export function deleteMessage(docId: string): () => void {
+  return (): void => {
+    const docRef = doc(messagesRef, docId);
+    void deleteDoc(docRef);
+  };
+}
+
+export function editMessage(docId: string, text: string): void {
   const docRef = doc(messagesRef, docId);
-  await deleteDoc(docRef);
+  void updateDoc(docRef, {
+    text,
+    editedAt: serverTimestamp()
+  });
 }

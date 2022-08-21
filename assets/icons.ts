@@ -1,6 +1,10 @@
 export {
+  RiEditLine,
+  RiCloseLine,
   RiGithubFill,
   RiGoogleFill,
+  RiImageAddLine,
+  RiDeleteBinLine,
   RiLogoutBoxLine,
   RiSendPlane2Line
 } from 'react-icons/ri';

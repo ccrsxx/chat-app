@@ -13,20 +13,19 @@
   }
 
   #__next {
-    @apply flex w-full max-w-2xl flex-col gap-4 rounded-lg bg-main p-4;
+    @apply flex w-full max-w-4xl flex-col gap-4 rounded-lg bg-main p-4;
   }
 }
 
 @layer components {
   .custom-button {
     @apply flex select-none items-center justify-center gap-2 rounded-lg py-2 px-3 font-medium transition duration-300 
-           hover:text-primary active:scale-90 active:duration-150 enabled:hover:bg-bubble  disabled:cursor-not-allowed 
-           disabled:brightness-50;
+           active:scale-90 active:duration-150 disabled:cursor-not-allowed;
   }
 
   .smooth-tab {
-    @apply rounded-lg transition focus:ring-offset-background focus-visible:outline-none
-           focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2;
+    @apply rounded-lg outline-none transition focus:ring-offset-background focus-visible:ring-2 
+           focus-visible:ring-white focus-visible:ring-offset-2;
   }
 
   .smooth-hover {
