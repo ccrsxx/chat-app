@@ -5,17 +5,12 @@ import { convertDate } from '@lib/date';
 import { ImageLoader } from '@components/ui/image-loader';
 import { Triangle } from '@components/ui/triangle';
 import { MessageOptions } from './message-options';
+import type { Message } from '@lib/firebase/converter';
 
-type ChatItemProps = {
-  id: string;
-  uid: string;
-  name: string;
-  text: string;
-  photoURL: string;
-  createdAt: number;
-  editedAt: number | null;
+type ChatItemProps = Message & {
   currentUserId: string | null;
   goToEditMode: (docId: string, text: string) => () => void;
+  exitEditMode: () => void;
 };
 
 const variants = [
@@ -31,6 +26,8 @@ const variants = [
   }
 ];
 
+const ADMIN_ID = process.env.NEXT_PUBLIC_ADMIN_ID;
+
 export function ChatMessage({
   id,
   uid,
@@ -38,16 +35,25 @@ export function ChatMessage({
   text,
   photoURL,
   editedAt,
+  imageData,
   createdAt,
   currentUserId,
-  goToEditMode
+  goToEditMode,
+  exitEditMode
 }: ChatItemProps): JSX.Element {
+  const isAdmin = currentUserId === ADMIN_ID;
+  const isFromAdmin = uid === ADMIN_ID;
   const isCurrentUser = currentUserId === uid;
+
+  const deleteChat = (): void => {
+    exitEditMode();
+    deleteMessage(id);
+  };
 
   return (
     <motion.li
       className={cn(
-        'flex gap-4',
+        'flex w-full gap-4',
         isCurrentUser && 'animate-fade flex-row-reverse self-end'
       )}
       layout
@@ -63,33 +69,53 @@ export function ChatMessage({
         alt={name}
       />
       <div
-        className={cn('group flex items-center gap-4', {
+        className={cn('group flex items-center justify-end gap-4', {
+          'flex-row-reverse': isAdmin && !isCurrentUser,
           'rounded-tr-none': isCurrentUser,
           'rounded-tl-none': !isCurrentUser
         })}
       >
-        {isCurrentUser && (
+        {(isAdmin || isCurrentUser) && (
           <MessageOptions
-            goToEditMode={goToEditMode(id, text)}
-            deleteMessage={deleteMessage(id)}
+            goToEditMode={text ? goToEditMode(id, text) : null}
+            deleteMessage={deleteChat}
           />
         )}
         <div
-          className={cn('relative rounded-lg bg-bubble py-2 px-4', {
+          className={cn('relative max-w-xl rounded-lg bg-bubble py-2 px-4', {
             'rounded-tr-none': isCurrentUser,
             'rounded-tl-none': !isCurrentUser
           })}
         >
           <Triangle isCurrentUser={isCurrentUser} />
           <div className='flex items-center gap-2'>
-            <p className='font-medium text-primary'>{name}</p>
+            <p
+              className={cn('font-medium', {
+                'text-red-400': isFromAdmin,
+                'text-primary': !isFromAdmin
+              })}
+            >
+              {name} {isFromAdmin && '👑'}
+            </p>
             <p className='text-sm text-secondary/80'>
               {convertDate(createdAt)}
             </p>
           </div>
-          <p className='max-w-md whitespace-pre-line break-words text-white/80'>
-            {text}
-          </p>
+          {text ? (
+            <p className='whitespace-pre-line break-words text-white/80'>
+              {text}
+            </p>
+          ) : imageData ? (
+            <ImageLoader
+              divStyle='flex h-[384px] justify-center items-center w-[384px] my-2 rounded-lg'
+              imageStyle='!min-w-0 rounded-lg !w-auto !min-h-0 !h-auto'
+              objectFit='cover'
+              src={imageData.url}
+              alt={imageData.name}
+            />
+          ) : (
+            <div className='my-2 h-[384px] w-[384px] animate-pulse rounded-lg bg-white' />
+          )}
           {editedAt && (
             <p className='py-1 text-right text-xs text-secondary/80'>
               Edited {convertDate(editedAt)}

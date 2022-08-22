@@ -4,7 +4,8 @@ import {
   VscLoading,
   RiGithubFill,
   RiGoogleFill,
-  RiLogoutBoxLine
+  RiLogoutBoxLine,
+  RiErrorWarningLine
 } from '@assets/icons';
 import type { User } from 'firebase/auth';
 
@@ -38,7 +39,11 @@ export function Header({ userInfo, loading, error }: HeaderProps): JSX.Element {
         <RiGithubFill className='text-xl' />
         <p className='text-lg'>ccrsxx</p>
       </a>
-      {loading ? (
+      {error ? (
+        <i className='flex w-14 items-center'>
+          <RiErrorWarningLine className='animate-spin' size={20} />
+        </i>
+      ) : loading ? (
         <i className='flex w-14 items-center'>
           <VscLoading className='animate-spin' size={20} />
         </i>

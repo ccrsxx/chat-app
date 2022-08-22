@@ -10,8 +10,9 @@ import type {
 export type Message = {
   id: string;
   name: string;
-  text: string;
+  text: string | null;
   photoURL: string;
+  imageData: { url: string; name: string } | null;
   createdAt: number;
   editedAt: number | null;
   uid: string;
@@ -23,6 +24,7 @@ export const messageConverter: FirestoreDataConverter<Message> = {
   toFirestore({
     name,
     text,
+    imageData,
     photoURL,
     createdAt,
     editedAt,
@@ -32,6 +34,7 @@ export const messageConverter: FirestoreDataConverter<Message> = {
       name,
       text,
       photoURL,
+      imageData,
       createdAt,
       editedAt,
       uid
@@ -42,18 +45,18 @@ export const messageConverter: FirestoreDataConverter<Message> = {
     options: SnapshotOptions
   ): Message {
     const { id } = snapshot;
-    const { name, text, photoURL, createdAt, editedAt, uid } = snapshot.data(
-      options
-    ) as Omit<Message, 'createdAt' | 'editedAt'> & {
-      createdAt: Timestamp;
-      editedAt: Timestamp | null;
-    };
+    const { name, text, imageData, photoURL, createdAt, editedAt, uid } =
+      snapshot.data(options) as Omit<Message, 'createdAt' | 'editedAt'> & {
+        createdAt: Timestamp;
+        editedAt: Timestamp | null;
+      };
 
     return {
       id,
       name,
       text,
       photoURL,
+      imageData,
       createdAt: createdAt?.toMillis() ?? null,
       editedAt: editedAt?.toMillis() ?? null,
       uid

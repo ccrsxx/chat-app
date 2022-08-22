@@ -8,6 +8,11 @@
     @apply h-full;
   }
 
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply flex min-h-screen justify-center bg-background p-4;
   }

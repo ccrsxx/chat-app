@@ -61,11 +61,11 @@ export default function Home({
     setTimeout(() => setMessageData(null), 500);
   };
 
-  const scrollToBottom = (input?: boolean): void => {
+  const scrollToBottom = (input?: boolean, delay?: number): void => {
     if (messageData || (input && isAtBottom)) return;
     setTimeout(
       () => bottomSpan.current?.scrollIntoView({ behavior: 'smooth' }),
-      100
+      delay ?? 100
     );
   };
 
@@ -88,6 +88,7 @@ export default function Home({
           messagesProp={messagesProp}
           currentUserId={currentUserId}
           goToEditMode={goToEditMode}
+          exitEditMode={exitEditMode}
           scrollToBottom={scrollToBottom}
         />
         <InputBox

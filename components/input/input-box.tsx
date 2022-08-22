@@ -5,8 +5,9 @@ import { AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
 import cn from 'clsx';
 import { Button } from '@components/ui/button';
-import { editMessage, sendMessage } from '@lib/firebase/utils';
+import { editMessage, sendMessage, sendImages } from '@lib/firebase/utils';
 import { RiImageAddLine, RiSendPlane2Line } from '@assets/icons';
+import { ImageUpload } from './image-upload';
 import { EditMode } from './edit-mode';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 
@@ -15,12 +16,22 @@ export type MessageData = {
   text: string;
 };
 
+export type ImagesData = {
+  id: number;
+  src: string;
+  name: string;
+}[];
+
+type FilesWithId = (File & {
+  id: number;
+})[];
+
 type InputBoxProps = {
   isEditMode: boolean;
   messageData: MessageData | null;
   currentUserId: string | null;
   exitEditMode: () => void;
-  scrollToBottom: (input?: boolean) => void;
+  scrollToBottom: (input?: boolean, delay?: number) => void;
 };
 
 export function InputBox({
@@ -33,28 +44,12 @@ export function InputBox({
   const { docId, text: docText } = messageData ?? {};
 
   const [inputValue, setInputValue] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>('');
+  const [selectedImages, setSelectedImages] = useState<FilesWithId>([]);
+  const [imagesPreview, setImagesPreview] = useState<ImagesData>([]);
 
   const inputElement = useRef<HTMLTextAreaElement | null>(null);
 
-  // create a preview as a side effect, whenever selected file is changed
-  useEffect(() => {
-    // console.log(selectedFile);
-
-    if (!selectedFile) {
-      setPreview(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreview(objectUrl);
-
-    // console.log({ selectedFile, objectUrl });
-
-    // free memory when ever this component is unmounted
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [selectedFile]);
+  const isUploadingImages = !!imagesPreview.length;
 
   useEffect(() => {
     if (!currentUserId) setInputValue('');
@@ -64,9 +59,27 @@ export function InputBox({
     if (isEditMode) {
       inputElement.current?.focus();
       setInputValue(docText!);
+      cleanImages();
     } else setInputValue('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, docId]);
+
+  const addMessage = (text: string): void => {
+    if (isEditMode) {
+      if (docText !== text) editMessage(docId!, text);
+      exitEditMode();
+    } else {
+      if (isUploadingImages) {
+        void sendImages(text, selectedImages);
+        cleanImages();
+        scrollToBottom(true, 500);
+        scrollToBottom(undefined, 1000);
+      } else void sendMessage(text);
+      scrollToBottom(true);
+    }
+
+    setInputValue('');
+  };
 
   const handleChange = ({
     target: { value }
@@ -75,24 +88,29 @@ export function InputBox({
   const handleFileUpload = ({
     target: { files }
   }: ChangeEvent<HTMLInputElement>): void => {
-    if (!files || !files.length) {
-      setSelectedFile(null);
-      return;
-    }
+    if (!files || !files.length) return;
 
-    setSelectedFile(files[0]);
-  };
+    const rawImages = [...files];
 
-  const addMessage = (text: string): void => {
-    if (isEditMode) {
-      if (docText !== text) editMessage(docId!, text);
-      exitEditMode();
-    } else {
-      sendMessage(text);
-      scrollToBottom(true);
-    }
+    const imagesId = rawImages.map((_, index) =>
+      Math.floor(Date.now() + Math.random() + index)
+    );
 
-    setInputValue('');
+    setSelectedImages(
+      rawImages.map((image, index) =>
+        Object.assign(image, { id: imagesId[index] })
+      )
+    );
+
+    const imagesData = rawImages.map((image, index) => ({
+      id: imagesId[index],
+      src: URL.createObjectURL(image),
+      name: image.name
+    }));
+
+    setImagesPreview([...imagesPreview, ...imagesData]);
+
+    inputElement.current?.focus();
   };
 
   const handleSubmit = (e: KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -106,67 +124,95 @@ export function InputBox({
 
     const trimmedValue = inputValue.trim();
 
-    if (trimmedValue && isMultiLine) addMessage(trimmedValue);
+    if ((isUploadingImages || trimmedValue) && isMultiLine)
+      addMessage(trimmedValue);
+  };
+
+  const removeImage = (targetId: number) => (): void => {
+    setSelectedImages(selectedImages.filter(({ id }) => id !== targetId));
+    setImagesPreview(imagesPreview.filter(({ id }) => id !== targetId));
+
+    const { src } = imagesPreview.find(({ id }) => id === targetId)!;
+    URL.revokeObjectURL(src);
   };
 
   const addWithIcon = (): void => addMessage(inputValue);
 
+  const cleanImages = (): void => {
+    setSelectedImages([]);
+    setImagesPreview([]);
+    imagesPreview.forEach(({ src }) => URL.revokeObjectURL(src));
+  };
+
   const isDisabled = !inputValue.trim();
 
   return (
-    <form className='mt-4 flex gap-4'>
-      <div className='flex w-full flex-col gap-2'>
-        <AnimatePresence>
-          {isEditMode && (
-            <EditMode
-              isDisabled={isDisabled}
-              addWithIcon={addWithIcon}
-              exitEditMode={exitEditMode}
+    <form className='mt-4 flex flex-col gap-4'>
+      <AnimatePresence>
+        {isEditMode ? (
+          <EditMode
+            isDisabled={isDisabled}
+            addWithIcon={addWithIcon}
+            exitEditMode={exitEditMode}
+          />
+        ) : isUploadingImages ? (
+          <ImageUpload
+            imagesPreview={imagesPreview}
+            removeImage={removeImage}
+          />
+        ) : null}
+      </AnimatePresence>
+      <div className='flex gap-4'>
+        {!isEditMode && (
+          <>
+            <input
+              id='image-upload'
+              className='peer hidden'
+              type='file'
+              accept='image/*'
+              onChange={handleFileUpload}
+              disabled={!currentUserId}
+              multiple
             />
-          )}
-        </AnimatePresence>
-        <div className='flex gap-4'>
-          {!isEditMode && (
             <label
-              className='custom-button smooth-hover cursor-pointer self-end bg-neutral-800 py-3
-                       text-secondary hover:bg-neutral-800 hover:text-primary hover:brightness-110'
+              htmlFor='image-upload'
+              className='custom-button smooth-hover cursor-pointer self-end bg-neutral-800 py-3 text-secondary 
+                         hover:bg-neutral-800 hover:brightness-110 peer-enabled:hover:text-primary
+                         peer-disabled:cursor-not-allowed peer-disabled:brightness-90 peer-disabled:hover:brightness-100'
             >
-              <input
-                className='hidden'
-                type='file'
-                accept='image/*'
-                onChange={handleFileUpload}
-                multiple
-              />
               <RiImageAddLine />
             </label>
+          </>
+        )}
+        <TextareaAutosize
+          className='text-secondary-500 focus:shadow-outline w-full resize-none rounded-lg border-none 
+                     bg-neutral-800 py-2 px-3 text-secondary placeholder-neutral-500 outline-none
+                     transition-all duration-300 hover:brightness-110 focus:border-neutral-900 focus:text-primary/80
+                     focus:brightness-[1.15] active:scale-[0.98] active:duration-150 disabled:cursor-not-allowed
+                     disabled:brightness-90 disabled:hover:brightness-100'
+          placeholder={
+            currentUserId ? 'Send a message' : 'Sign in to send a message'
+          }
+          maxRows={10}
+          onChange={handleChange}
+          onKeyDown={handleSubmit}
+          value={inputValue}
+          disabled={!currentUserId}
+          ref={inputElement}
+        />
+        <Button
+          ariaLabel='Send message'
+          className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-secondary
+                     hover:brightness-110 enabled:hover:text-primary disabled:brightness-90 disabled:hover:brightness-100'
+          iconStyle={cn(
+            'transition-transform',
+            (isUploadingImages || !isDisabled) && '-rotate-[40deg]'
           )}
-          <TextareaAutosize
-            className='text-secondary-500 focus:shadow-outline w-full resize-none rounded-lg border-none 
-                       bg-neutral-800 py-2 px-3 text-secondary placeholder-neutral-500 outline-none
-                       transition-all duration-300 hover:brightness-110 focus:border-neutral-900 focus:text-primary/80
-                       focus:brightness-[1.15] active:scale-[0.98] active:duration-150 disabled:cursor-not-allowed
-                       disabled:brightness-90 disabled:hover:brightness-100'
-            placeholder={
-              currentUserId ? 'Send a message' : 'Sign in to send a message'
-            }
-            maxRows={10}
-            onChange={handleChange}
-            onKeyDown={handleSubmit}
-            value={inputValue}
-            disabled={!currentUserId}
-            ref={inputElement}
-          />
-        </div>
+          Icon={RiSendPlane2Line}
+          disabled={!currentUserId || (!isUploadingImages && isDisabled)}
+          onClick={addWithIcon}
+        />
       </div>
-      <Button
-        className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-secondary
-                   hover:brightness-110 enabled:hover:text-primary disabled:brightness-90 disabled:hover:brightness-100'
-        iconStyle={cn('transition-transform', !isDisabled && '-rotate-[40deg]')}
-        Icon={RiSendPlane2Line}
-        disabled={isDisabled || !currentUserId}
-        onClick={addWithIcon}
-      />
     </form>
   );
 }

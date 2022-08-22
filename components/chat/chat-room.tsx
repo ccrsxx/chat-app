@@ -13,6 +13,7 @@ type ChatRoomProps = {
   messagesProp: Messages;
   currentUserId: string | null;
   goToEditMode: (docId: string, text: string) => () => void;
+  exitEditMode: () => void;
   scrollToBottom: (input?: boolean) => void;
 };
 
@@ -23,6 +24,7 @@ export function ChatRoom({
   messagesProp,
   currentUserId,
   goToEditMode,
+  exitEditMode,
   scrollToBottom
 }: ChatRoomProps): JSX.Element {
   const [messages, setMessages] = useState<Messages>(messagesProp);
@@ -38,8 +40,8 @@ export function ChatRoom({
 
   return (
     <ol
-      className='flex flex-1 flex-col gap-4 overflow-x-hidden overflow-y-scroll
-                 rounded-lg bg-neutral-800 px-4 pt-4'
+      className='grid flex-1 auto-rows-min flex-col gap-4 overflow-y-auto
+                 overflow-x-hidden rounded-lg bg-neutral-800 px-4 pt-4'
       ref={scrollArea}
     >
       <AnimatePresence initial={false}>
@@ -47,6 +49,7 @@ export function ChatRoom({
           <ChatMessage
             currentUserId={currentUserId}
             goToEditMode={goToEditMode}
+            exitEditMode={exitEditMode}
             {...rest}
             key={rest.id}
           />

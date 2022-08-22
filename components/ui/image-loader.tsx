@@ -7,10 +7,11 @@ type ImageLoaderProps = {
   src: string;
   alt: string;
   divStyle: string;
-  imageStyle?: string;
+  children?: ReactNode;
   objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
   draggable?: boolean;
-  children?: ReactNode;
+  imageStyle?: string;
+  noPlaceholder?: boolean;
 };
 
 export function ImageLoader({
@@ -20,7 +21,8 @@ export function ImageLoader({
   children,
   objectFit,
   draggable,
-  imageStyle
+  imageStyle,
+  noPlaceholder
 }: ImageLoaderProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +33,7 @@ export function ImageLoader({
       className={cn(
         'relative',
         divStyle,
-        isLoading && 'animate-pulse !bg-primary'
+        !noPlaceholder && isLoading && 'animate-pulse !bg-primary'
       )}
     >
       <Image
@@ -41,7 +43,7 @@ export function ImageLoader({
         draggable={draggable}
         objectFit={objectFit}
         layout='fill'
-        onLoadingComplete={handleLoad}
+        onLoadingComplete={!noPlaceholder ? handleLoad : undefined}
       />
       {children}
     </div>

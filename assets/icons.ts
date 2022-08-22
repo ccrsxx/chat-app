@@ -6,6 +6,7 @@ export {
   RiImageAddLine,
   RiDeleteBinLine,
   RiLogoutBoxLine,
-  RiSendPlane2Line
+  RiSendPlane2Line,
+  RiErrorWarningLine
 } from 'react-icons/ri';
 export { VscLoading } from 'react-icons/vsc';
