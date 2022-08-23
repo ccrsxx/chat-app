@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
@@ -6,6 +7,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import cn from 'clsx';
 import { Button } from '@components/ui/button';
 import { editMessage, sendMessage, sendImages } from '@lib/firebase/utils';
+import { isValidImage } from '@lib/file';
 import { RiImageAddLine, RiSendPlane2Line } from '@assets/icons';
 import { ImageUpload } from './image-upload';
 import { EditMode } from './edit-mode';
@@ -16,11 +18,14 @@ export type MessageData = {
   text: string;
 };
 
-export type ImagesData = {
-  id: number;
+export type ImageData = {
   src: string;
-  name: string;
-}[];
+  alt: string;
+};
+
+export type ImagesData = (ImageData & {
+  id: number;
+})[];
 
 type FilesWithId = (File & {
   id: number;
@@ -30,6 +35,7 @@ type InputBoxProps = {
   isEditMode: boolean;
   messageData: MessageData | null;
   currentUserId: string | null;
+  openModal: (data: ImageData) => () => void;
   exitEditMode: () => void;
   scrollToBottom: (input?: boolean, delay?: number) => void;
 };
@@ -38,6 +44,7 @@ export function InputBox({
   isEditMode,
   messageData,
   currentUserId,
+  openModal,
   exitEditMode,
   scrollToBottom
 }: InputBoxProps): JSX.Element {
@@ -51,6 +58,11 @@ export function InputBox({
 
   const isUploadingImages = !!imagesPreview.length;
 
+  useEffect(
+    () => () => imagesPreview.forEach(({ src }) => URL.revokeObjectURL(src)),
+    []
+  );
+
   useEffect(() => {
     if (!currentUserId) setInputValue('');
   }, [currentUserId]);
@@ -61,7 +73,6 @@ export function InputBox({
       setInputValue(docText!);
       cleanImages();
     } else setInputValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, docId]);
 
   const addMessage = (text: string): void => {
@@ -90,7 +101,7 @@ export function InputBox({
   }: ChangeEvent<HTMLInputElement>): void => {
     if (!files || !files.length) return;
 
-    const rawImages = [...files];
+    const rawImages = [...files].filter(({ name }) => isValidImage(name));
 
     const imagesId = rawImages.map((_, index) =>
       Math.floor(Date.now() + Math.random() + index)
@@ -105,7 +116,7 @@ export function InputBox({
     const imagesData = rawImages.map((image, index) => ({
       id: imagesId[index],
       src: URL.createObjectURL(image),
-      name: image.name
+      alt: image.name
     }));
 
     setImagesPreview([...imagesPreview, ...imagesData]);
@@ -158,6 +169,7 @@ export function InputBox({
         ) : isUploadingImages ? (
           <ImageUpload
             imagesPreview={imagesPreview}
+            openModal={openModal}
             removeImage={removeImage}
           />
         ) : null}
@@ -187,13 +199,13 @@ export function InputBox({
         <TextareaAutosize
           className='text-secondary-500 focus:shadow-outline w-full resize-none rounded-lg border-none 
                      bg-neutral-800 py-2 px-3 text-secondary placeholder-neutral-500 outline-none
-                     transition-all duration-300 hover:brightness-110 focus:border-neutral-900 focus:text-primary/80
-                     focus:brightness-[1.15] active:scale-[0.98] active:duration-150 disabled:cursor-not-allowed
-                     disabled:brightness-90 disabled:hover:brightness-100'
+                     transition-all hover:brightness-110 hover:duration-300 focus:border-neutral-900 
+                     focus:text-primary/80 focus:brightness-[1.15] active:scale-[0.98] active:duration-150
+                     disabled:cursor-not-allowed disabled:brightness-90 disabled:hover:brightness-100'
           placeholder={
             currentUserId ? 'Send a message' : 'Sign in to send a message'
           }
-          maxRows={10}
+          maxRows={isUploadingImages ? 5 : 10}
           onChange={handleChange}
           onKeyDown={handleSubmit}
           value={inputValue}
@@ -202,7 +214,7 @@ export function InputBox({
         />
         <Button
           ariaLabel='Send message'
-          className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-secondary
+          className='z-0 self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-secondary
                      hover:brightness-110 enabled:hover:text-primary disabled:brightness-90 disabled:hover:brightness-100'
           iconStyle={cn(
             'transition-transform',

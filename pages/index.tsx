@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDocs } from 'firebase/firestore';
+import { AnimatePresence } from 'framer-motion';
 import { auth, messagesQuery } from '@lib/firebase/utils';
 import { useIntersection } from '@lib/hooks/useIntersection';
 import { MainLayout } from '@components/common/main-layout';
 import { Header } from '@components/common/header';
+import { ImageModal } from '@components/modal/image-modal';
 import { ChatRoom } from '@components/chat/chat-room';
-import { InputBox } from '@components/input/input-box';
+import { InputBox } from '@components/form/main-input';
 import type {
   GetServerSidePropsResult,
   InferGetServerSidePropsType
 } from 'next';
 import type { Messages } from '@lib/firebase/converter';
-import type { MessageData } from '@components/input/input-box';
+import type { MessageData, ImageData } from '@components/form/main-input';
 
 type HomeProps = {
   messagesProp: Messages;
@@ -36,7 +38,9 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const [user, loading, error] = useAuthState(auth);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageData, setMessageData] = useState<MessageData | null>(null);
+  const [imageData, setImageData] = useState<ImageData | null>(null);
 
   const scrollArea = useRef<HTMLOListElement | null>(null);
   const bottomSpan = useRef<HTMLSpanElement | null>(null);
@@ -69,6 +73,13 @@ export default function Home({
     );
   };
 
+  const openModal = (data: ImageData) => (): void => {
+    setIsModalOpen(true);
+    setImageData(data);
+  };
+
+  const closeModal = (): void => setIsModalOpen(false);
+
   const userInfo = user ?? null;
   const currentUserId = userInfo?.uid ?? null;
 
@@ -87,14 +98,21 @@ export default function Home({
           isAtBottom={isAtBottom}
           messagesProp={messagesProp}
           currentUserId={currentUserId}
+          openModal={openModal}
           goToEditMode={goToEditMode}
           exitEditMode={exitEditMode}
           scrollToBottom={scrollToBottom}
         />
+        <AnimatePresence>
+          {isModalOpen && imageData && (
+            <ImageModal imageData={imageData} closeModal={closeModal} />
+          )}
+        </AnimatePresence>
         <InputBox
           isEditMode={isEditMode}
           messageData={messageData}
           currentUserId={currentUserId}
+          openModal={openModal}
           exitEditMode={exitEditMode}
           scrollToBottom={scrollToBottom}
         />

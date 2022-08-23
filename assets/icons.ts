@@ -9,4 +9,5 @@ export {
   RiSendPlane2Line,
   RiErrorWarningLine
 } from 'react-icons/ri';
+export { FaFan } from 'react-icons/fa';
 export { VscLoading } from 'react-icons/vsc';

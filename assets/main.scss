@@ -36,4 +36,8 @@
   .smooth-hover {
     @apply hover:bg-bubble hover:text-primary;
   }
+
+  .trim-alt {
+    @apply overflow-hidden text-ellipsis break-all [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical];
+  }
 }

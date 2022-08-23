@@ -3,12 +3,18 @@ import cn from 'clsx';
 import { deleteMessage } from '@lib/firebase/utils';
 import { convertDate } from '@lib/date';
 import { ImageLoader } from '@components/ui/image-loader';
+import { ImageLoaderLegacy } from '@components/ui/image-loader-legacy';
+import { Skeleton } from '@components/ui/skeleton';
 import { Triangle } from '@components/ui/triangle';
+import { ADMIN_ID } from './chat-room';
 import { MessageOptions } from './message-options';
 import type { Message } from '@lib/firebase/converter';
+import type { ImageData } from '@components/form/main-input';
 
 type ChatItemProps = Message & {
+  isAdmin: boolean;
   currentUserId: string | null;
+  openModal: (data: ImageData) => () => void;
   goToEditMode: (docId: string, text: string) => () => void;
   exitEditMode: () => void;
 };
@@ -26,22 +32,21 @@ const variants = [
   }
 ];
 
-const ADMIN_ID = process.env.NEXT_PUBLIC_ADMIN_ID;
-
 export function ChatMessage({
   id,
   uid,
   name,
   text,
+  isAdmin,
   photoURL,
   editedAt,
   imageData,
   createdAt,
   currentUserId,
+  openModal,
   goToEditMode,
   exitEditMode
 }: ChatItemProps): JSX.Element {
-  const isAdmin = currentUserId === ADMIN_ID;
   const isFromAdmin = uid === ADMIN_ID;
   const isCurrentUser = currentUserId === uid;
 
@@ -82,7 +87,7 @@ export function ChatMessage({
           />
         )}
         <div
-          className={cn('relative max-w-xl rounded-lg bg-bubble py-2 px-4', {
+          className={cn('relative max-w-md rounded-lg bg-bubble py-2 px-4', {
             'rounded-tr-none': isCurrentUser,
             'rounded-tl-none': !isCurrentUser
           })}
@@ -106,15 +111,13 @@ export function ChatMessage({
               {text}
             </p>
           ) : imageData ? (
-            <ImageLoader
-              divStyle='flex h-[384px] justify-center items-center w-[384px] my-2 rounded-lg'
-              imageStyle='!min-w-0 rounded-lg !w-auto !min-h-0 !h-auto'
-              objectFit='cover'
-              src={imageData.url}
-              alt={imageData.name}
+            <ImageLoaderLegacy
+              src={imageData.src}
+              alt={imageData.alt}
+              onClick={openModal(imageData)}
             />
           ) : (
-            <div className='my-2 h-[384px] w-[384px] animate-pulse rounded-lg bg-white' />
+            <Skeleton />
           )}
           {editedAt && (
             <p className='py-1 text-right text-xs text-secondary/80'>

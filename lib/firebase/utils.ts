@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -16,7 +14,8 @@ import {
   deleteDoc,
   collection,
   getFirestore,
-  serverTimestamp
+  serverTimestamp,
+  getDocs
 } from 'firebase/firestore';
 import {
   ref,
@@ -117,24 +116,29 @@ export async function sendImages(
 
         try {
           publicImageUrl = await getDownloadURL(imageRef);
-        } catch (error) {
-          console.error(error);
+        } catch {
           await uploadBytesResumable(imageRef, image);
           publicImageUrl = await getDownloadURL(imageRef);
         }
 
         await updateDoc(messageRef, {
           imageData: {
-            url: publicImageUrl,
-            name: imageName
+            src: publicImageUrl,
+            alt: imageName
           }
         });
       })
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(
       'There was an error sending the images to the server:',
       error
     );
   }
+}
+
+export async function deleteAllMessages(): Promise<void> {
+  const docsRef = await getDocs(messagesRef);
+  await Promise.all(docsRef.docs.map(({ id }) => deleteMessage(id)));
 }
