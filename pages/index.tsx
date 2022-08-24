@@ -2,19 +2,24 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDocs } from 'firebase/firestore';
 import { AnimatePresence } from 'framer-motion';
-import { auth, messagesQuery } from '@lib/firebase/utils';
+import {
+  auth,
+  messagesQuery,
+  saveMessagingDeviceToken
+} from '@lib/firebase/utils';
 import { useIntersection } from '@lib/hooks/useIntersection';
+import { Container } from '@components/common/container';
 import { MainLayout } from '@components/common/main-layout';
 import { Header } from '@components/common/header';
 import { ImageModal } from '@components/modal/image-modal';
 import { ChatRoom } from '@components/chat/chat-room';
-import { InputBox } from '@components/form/main-input';
+import { MainForm } from '@components/form/main-form';
 import type {
   GetServerSidePropsResult,
   InferGetServerSidePropsType
 } from 'next';
 import type { Messages } from '@lib/firebase/converter';
-import type { MessageData, ImageData } from '@components/form/main-input';
+import type { MessageData, ImageData } from '@components/form/main-form';
 
 type HomeProps = {
   messagesProp: Messages;
@@ -50,6 +55,11 @@ export default function Home({
     threshold: 1.0
   });
 
+  // TODO: add notification
+  // useEffect(() => {
+  //   if (user) void saveMessagingDeviceToken();
+  // }, [user]);
+
   useEffect(() => {
     scrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,7 +94,7 @@ export default function Home({
   const currentUserId = userInfo?.uid ?? null;
 
   return (
-    <>
+    <Container>
       <Header userInfo={userInfo} loading={loading} error={error} />
       <MainLayout
         className='flex flex-1 flex-col overflow-hidden px-2'
@@ -108,7 +118,7 @@ export default function Home({
             <ImageModal imageData={imageData} closeModal={closeModal} />
           )}
         </AnimatePresence>
-        <InputBox
+        <MainForm
           isEditMode={isEditMode}
           messageData={messageData}
           currentUserId={currentUserId}
@@ -117,6 +127,6 @@ export default function Home({
           scrollToBottom={scrollToBottom}
         />
       </MainLayout>
-    </>
+    </Container>
   );
 }

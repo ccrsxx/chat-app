@@ -3,22 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  html,
-  body {
-    @apply h-full;
-  }
-
   a,
   button {
     -webkit-tap-highlight-color: transparent;
-  }
-
-  body {
-    @apply flex min-h-screen justify-center bg-background p-4;
-  }
-
-  #__next {
-    @apply flex w-full max-w-4xl flex-col gap-4 rounded-lg bg-main p-4;
   }
 }
 

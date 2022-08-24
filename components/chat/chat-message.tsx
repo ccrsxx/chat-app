@@ -6,10 +6,11 @@ import { ImageLoader } from '@components/ui/image-loader';
 import { ImageLoaderLegacy } from '@components/ui/image-loader-legacy';
 import { Skeleton } from '@components/ui/skeleton';
 import { Triangle } from '@components/ui/triangle';
+import { RiShieldFill, RiVipCrownFill } from '@assets/icons';
 import { ADMIN_ID } from './chat-room';
 import { MessageOptions } from './message-options';
 import type { Message } from '@lib/firebase/converter';
-import type { ImageData } from '@components/form/main-input';
+import type { ImageData } from '@components/form/main-form';
 
 type ChatItemProps = Message & {
   isAdmin: boolean;
@@ -48,6 +49,7 @@ export function ChatMessage({
   exitEditMode
 }: ChatItemProps): JSX.Element {
   const isFromAdmin = uid === ADMIN_ID;
+  const isFromModerator = uid === 'firebase-bot';
   const isCurrentUser = currentUserId === uid;
 
   const deleteChat = (): void => {
@@ -74,11 +76,10 @@ export function ChatMessage({
         alt={name}
       />
       <div
-        className={cn('group flex items-center justify-end gap-4', {
-          'flex-row-reverse': isAdmin && !isCurrentUser,
-          'rounded-tr-none': isCurrentUser,
-          'rounded-tl-none': !isCurrentUser
-        })}
+        className={cn(
+          'group flex items-center justify-end gap-4',
+          isAdmin && !isCurrentUser && 'flex-row-reverse'
+        )}
       >
         {(isAdmin || isCurrentUser) && (
           <MessageOptions
@@ -94,14 +95,18 @@ export function ChatMessage({
         >
           <Triangle isCurrentUser={isCurrentUser} />
           <div className='flex items-center gap-2'>
-            <p
-              className={cn('font-medium', {
+            <div
+              className={cn('flex items-center gap-1', {
                 'text-red-400': isFromAdmin,
-                'text-primary': !isFromAdmin
+                'text-green-400': isFromModerator,
+                'text-primary': !isFromAdmin && !isFromModerator
               })}
             >
-              {name} {isFromAdmin && '👑'}
-            </p>
+              <p className='font-medium'>{name}</p>
+              {(isFromAdmin || isFromModerator) && (
+                <i>{isFromAdmin ? <RiVipCrownFill /> : <RiShieldFill />}</i>
+              )}
+            </div>
             <p className='text-sm text-secondary/80'>
               {convertDate(createdAt)}
             </p>

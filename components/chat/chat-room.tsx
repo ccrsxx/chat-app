@@ -7,7 +7,7 @@ import { FaFan } from '@assets/icons';
 import { ChatMessage } from './chat-message';
 import type { Ref } from 'react';
 import type { Messages } from '@lib/firebase/converter';
-import type { ImageData } from '@components/form/main-input';
+import type { ImageData } from '@components/form/main-form';
 
 type ChatRoomProps = {
   scrollArea: Ref<HTMLOListElement> | null;

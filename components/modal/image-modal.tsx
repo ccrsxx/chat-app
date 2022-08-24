@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { VscLoading } from '@assets/icons';
-import type { ImageData } from '@components/form/main-input';
+import type { ImageData } from '@components/form/main-form';
 
 type ImageModalProps = {
   imageData: ImageData;

@@ -6,7 +6,7 @@ import type {
   QueryDocumentSnapshot,
   FirestoreDataConverter
 } from 'firebase/firestore';
-import type { ImageData } from '@components/form/main-input';
+import type { ImageData } from '@components/form/main-form';
 
 export type Message = {
   id: string;

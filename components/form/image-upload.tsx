@@ -3,7 +3,7 @@ import { ImageLoader } from '@components/ui/image-loader';
 import { Button } from '@components/ui/button';
 import { RiDeleteBinLine } from '@assets/icons';
 import { variants } from './edit-mode';
-import type { ImagesData, ImageData } from './main-input';
+import type { ImagesData, ImageData } from './main-form';
 
 type ImageUploadProps = {
   imagesPreview: ImagesData;

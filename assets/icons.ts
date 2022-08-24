@@ -3,6 +3,8 @@ export {
   RiCloseLine,
   RiGithubFill,
   RiGoogleFill,
+  RiShieldFill,
+  RiVipCrownFill,
   RiImageAddLine,
   RiDeleteBinLine,
   RiLogoutBoxLine,

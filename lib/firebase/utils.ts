@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -9,13 +11,14 @@ import {
   doc,
   query,
   addDoc,
+  setDoc,
+  getDocs,
   orderBy,
   updateDoc,
   deleteDoc,
   collection,
   getFirestore,
-  serverTimestamp,
-  getDocs
+  serverTimestamp
 } from 'firebase/firestore';
 import {
   ref,
@@ -23,17 +26,19 @@ import {
   getDownloadURL,
   uploadBytesResumable
 } from 'firebase/storage';
+import { getToken, getMessaging, onMessage } from 'firebase/messaging';
 import { getFirebaseConfig } from './config';
 import { messageConverter } from './converter';
 import type { DocumentReference, DocumentData } from 'firebase/firestore';
 
 initializeApp(getFirebaseConfig());
 
+export const auth = getAuth();
 export const db = getFirestore();
 export const storage = getStorage();
-export const auth = getAuth();
 
 export const messagesRef = collection(db, 'messages');
+export const tokensRef = collection(db, 'tokens');
 
 export const messagesQuery = query(
   messagesRef,
@@ -141,4 +146,42 @@ export async function sendImages(
 export async function deleteAllMessages(): Promise<void> {
   const docsRef = await getDocs(messagesRef);
   await Promise.all(docsRef.docs.map(({ id }) => deleteMessage(id)));
+}
+
+export async function saveMessagingDeviceToken(): Promise<void> {
+  const messaging = getMessaging();
+
+  try {
+    const currentToken = await getToken(messaging);
+    if (currentToken) {
+      console.info('Got FCM device token:', currentToken);
+
+      const tokenRef = doc(tokensRef, currentToken);
+      await setDoc(tokenRef, { uid: auth?.currentUser?.uid });
+
+      // This will fire when a message is received while the app is in the foreground.
+      // When the app is in the background, firebase-messaging-sw.js will receive the message instead.
+      onMessage(messaging, (message) => {
+        console.info(
+          'New foreground notification from Firebase Messaging!',
+          message.notification
+        );
+      });
+    }
+    // Need to request permissions to show notifications.
+    else void requestNotificationsPermissions();
+  } catch (error) {
+    console.error('Unable to get messaging token.', error);
+  }
+}
+
+async function requestNotificationsPermissions(): Promise<void> {
+  console.info('Requesting notifications permission...');
+  const permission = await Notification.requestPermission();
+
+  if (permission === 'granted') {
+    console.info('Notification permission granted.');
+    // Notification permission granted.
+    await saveMessagingDeviceToken();
+  } else console.error('Unable to get permission to notify.');
 }

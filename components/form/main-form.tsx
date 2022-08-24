@@ -40,7 +40,7 @@ type InputBoxProps = {
   scrollToBottom: (input?: boolean, delay?: number) => void;
 };
 
-export function InputBox({
+export function MainForm({
   isEditMode,
   messageData,
   currentUserId,
@@ -96,7 +96,7 @@ export function InputBox({
     target: { value }
   }: KeyboardEvent<HTMLTextAreaElement>): void => setInputValue(value);
 
-  const handleFileUpload = ({
+  const handleImageUpload = ({
     target: { files }
   }: ChangeEvent<HTMLInputElement>): void => {
     if (!files || !files.length) return;
@@ -182,7 +182,7 @@ export function InputBox({
               className='peer hidden'
               type='file'
               accept='image/*'
-              onChange={handleFileUpload}
+              onChange={handleImageUpload}
               disabled={!currentUserId}
               multiple
             />
