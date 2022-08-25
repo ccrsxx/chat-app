@@ -1,21 +1,30 @@
-import { signIn, signOut } from '@lib/firebase/utils';
+import cn from 'clsx';
+import { saveMessagingDeviceToken, signIn, signOut } from '@lib/firebase/utils';
 import { Button } from '@components/ui/button';
 import {
   VscLoading,
   RiGithubFill,
   RiGoogleFill,
   RiLogoutBoxLine,
-  RiErrorWarningLine
+  RiErrorWarningLine,
+  RiNotificationFill,
+  RiNotificationOffFill
 } from '@assets/icons';
 import type { User } from 'firebase/auth';
 
 type HeaderProps = {
-  userInfo: User | null;
-  loading: boolean;
   error: Error | undefined;
+  loading: boolean;
+  userInfo: User | null;
+  isNotificationAllowed: boolean;
 };
 
-export function Header({ userInfo, loading, error }: HeaderProps): JSX.Element {
+export function Header({
+  error,
+  loading,
+  userInfo,
+  isNotificationAllowed
+}: HeaderProps): JSX.Element {
   const { Icon, label, onClick } = userInfo
     ? {
         Icon: RiLogoutBoxLine,
@@ -39,10 +48,24 @@ export function Header({ userInfo, loading, error }: HeaderProps): JSX.Element {
         <RiGithubFill className='text-xl' />
         <p className='text-lg'>ccrsxx</p>
       </a>
+      {userInfo && (
+        <Button
+          className={cn('animate-fade', {
+            'text-green-400': isNotificationAllowed,
+            'text-red-400': !isNotificationAllowed
+          })}
+          Icon={
+            isNotificationAllowed ? RiNotificationFill : RiNotificationOffFill
+          }
+          label={
+            isNotificationAllowed ? 'Notifications on' : 'Notifications off'
+          }
+          onClick={saveMessagingDeviceToken}
+          disabled={isNotificationAllowed}
+        />
+      )}
       {error ? (
-        <i className='flex w-14 items-center'>
-          <RiErrorWarningLine className='animate-spin' size={20} />
-        </i>
+        <Button Icon={RiErrorWarningLine} label='Try Again' onClick={signIn} />
       ) : loading ? (
         <i className='flex w-14 items-center'>
           <VscLoading className='animate-spin' size={20} />

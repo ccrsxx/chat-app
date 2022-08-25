@@ -153,19 +153,29 @@ export async function saveMessagingDeviceToken(): Promise<void> {
 
   try {
     const currentToken = await getToken(messaging);
+
+    console.log(currentToken);
+
     if (currentToken) {
       console.info('Got FCM device token:', currentToken);
 
       const tokenRef = doc(tokensRef, currentToken);
-      await setDoc(tokenRef, { uid: auth?.currentUser?.uid });
+
+      await setDoc(tokenRef, {
+        name: auth.currentUser?.displayName,
+        uid: auth.currentUser?.uid
+      });
 
       // This will fire when a message is received while the app is in the foreground.
       // When the app is in the background, firebase-messaging-sw.js will receive the message instead.
       onMessage(messaging, (message) => {
-        console.info(
-          'New foreground notification from Firebase Messaging!',
-          message.notification
-        );
+        const { title, icon, body } = message.notification as {
+          [key: string]: string;
+        };
+        new Notification(title, {
+          icon,
+          body
+        });
       });
     }
     // Need to request permissions to show notifications.
@@ -181,7 +191,6 @@ async function requestNotificationsPermissions(): Promise<void> {
 
   if (permission === 'granted') {
     console.info('Notification permission granted.');
-    // Notification permission granted.
     await saveMessagingDeviceToken();
   } else console.error('Unable to get permission to notify.');
 }

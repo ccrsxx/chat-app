@@ -9,7 +9,9 @@ export {
   RiDeleteBinLine,
   RiLogoutBoxLine,
   RiSendPlane2Line,
-  RiErrorWarningLine
+  RiNotificationFill,
+  RiErrorWarningLine,
+  RiNotificationOffFill
 } from 'react-icons/ri';
 export { FaFan } from 'react-icons/fa';
 export { VscLoading } from 'react-icons/vsc';

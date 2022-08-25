@@ -9,12 +9,12 @@ export function useIntersection(
     threshold?: number | number[];
   }
 ): boolean {
-  const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     const intersectionCallback = ([
       { isIntersecting }
-    ]: IntersectionObserverEntry[]): void => setIsAtBottom(isIntersecting);
+    ]: IntersectionObserverEntry[]): void => setIsActive(isIntersecting);
 
     const observer = new IntersectionObserver(intersectionCallback, {
       root: root ? root?.current : null,
@@ -29,5 +29,5 @@ export function useIntersection(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return isAtBottom;
+  return isActive;
 }

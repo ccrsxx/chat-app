@@ -1,11 +1,9 @@
-import * as functions from 'firebase-functions';
-import { firestore } from './db';
+import { firestore, functions, regionalFunctions } from './utils';
 
-export const welcomeMessage = functions
-  .region('asia-southeast2')
-  .auth.user()
+export const welcomeMessage = regionalFunctions.auth
+  .user()
   .onCreate(async (user) => {
-    functions.logger.log('A new user signed in for the first time.');
+    functions.logger.info('A new user signed in for the first time.');
 
     const fullName = user.displayName ?? 'Anonymous';
 
@@ -21,5 +19,5 @@ export const welcomeMessage = functions
         uid: 'firebase-bot'
       });
 
-    functions.logger.log('Welcome message written to database.');
+    functions.logger.info('Welcome message written to database.');
   });

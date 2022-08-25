@@ -49,14 +49,14 @@ export function ChatRoom({
 
   return (
     <ol
-      className='grid flex-1 auto-rows-min flex-col gap-4 overflow-y-auto
+      className='flex flex-1 flex-col-reverse gap-4 overflow-y-auto
                  overflow-x-hidden rounded-lg bg-neutral-800 px-4 pt-4'
       ref={scrollArea}
     >
       {isAdmin && (
-        <div className='group fixed z-10 -translate-y-4 -translate-x-4 rounded-lg p-4'>
+        <div className='group fixed z-10 -translate-x-4 translate-y-0 rounded-lg p-4'>
           <Button
-            className='-translate-y-4 bg-bubble p-2 text-lg text-primary/80 opacity-0
+            className='translate-y-4 bg-bubble p-2 text-lg text-primary/80 opacity-0
                        hover:bg-red-400 group-hover:translate-y-0 group-hover:opacity-100'
             iconStyle='animate-spin'
             Icon={FaFan}
@@ -64,20 +64,22 @@ export function ChatRoom({
           />
         </div>
       )}
-      <AnimatePresence initial={false}>
-        {messages.map(({ ...rest }) => (
-          <ChatMessage
-            isAdmin={isAdmin}
-            currentUserId={currentUserId}
-            openModal={openModal}
-            goToEditMode={goToEditMode}
-            exitEditMode={exitEditMode}
-            {...rest}
-            key={rest.id}
-          />
-        ))}
-      </AnimatePresence>
-      <span ref={bottomSpan} />
+      <div className='flex flex-col gap-4'>
+        <AnimatePresence initial={false}>
+          {messages.map(({ ...rest }) => (
+            <ChatMessage
+              isAdmin={isAdmin}
+              currentUserId={currentUserId}
+              openModal={openModal}
+              goToEditMode={goToEditMode}
+              exitEditMode={exitEditMode}
+              {...rest}
+              key={rest.id}
+            />
+          ))}
+        </AnimatePresence>
+        <span ref={bottomSpan} />
+      </div>
     </ol>
   );
 }

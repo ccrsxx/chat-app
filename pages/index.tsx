@@ -7,6 +7,7 @@ import {
   messagesQuery,
   saveMessagingDeviceToken
 } from '@lib/firebase/utils';
+import { useNotification } from '@lib/hooks/useNotification';
 import { useIntersection } from '@lib/hooks/useIntersection';
 import { Container } from '@components/common/container';
 import { MainLayout } from '@components/common/main-layout';
@@ -50,20 +51,15 @@ export default function Home({
   const scrollArea = useRef<HTMLOListElement | null>(null);
   const bottomSpan = useRef<HTMLSpanElement | null>(null);
 
+  const isNotificationAllowed = useNotification();
   const isAtBottom = useIntersection(scrollArea, bottomSpan, {
     rootMargin: '300px',
     threshold: 1.0
   });
 
-  // TODO: add notification
-  // useEffect(() => {
-  //   if (user) void saveMessagingDeviceToken();
-  // }, [user]);
-
   useEffect(() => {
-    scrollToBottom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (user) void saveMessagingDeviceToken();
+  }, [user]);
 
   const goToEditMode = (docId: string, text: string) => (): void => {
     setMessageData({ docId, text });
@@ -95,7 +91,12 @@ export default function Home({
 
   return (
     <Container>
-      <Header userInfo={userInfo} loading={loading} error={error} />
+      <Header
+        error={error}
+        loading={loading}
+        userInfo={userInfo}
+        isNotificationAllowed={isNotificationAllowed}
+      />
       <MainLayout
         className='flex flex-1 flex-col overflow-hidden px-2'
         title='Chat App - A Simple Chat Room App'
