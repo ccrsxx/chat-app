@@ -64,7 +64,10 @@ export function MainForm({
   );
 
   useEffect(() => {
-    if (!currentUserId) setInputValue('');
+    if (!currentUserId) {
+      exitEditMode();
+      setInputValue('');
+    }
   }, [currentUserId]);
 
   useEffect(() => {
@@ -158,7 +161,7 @@ export function MainForm({
   const isDisabled = !inputValue.trim();
 
   return (
-    <form className='mt-4 flex flex-col gap-4'>
+    <form className='mt-4 mb-2 flex flex-col gap-4'>
       <AnimatePresence>
         {isEditMode ? (
           <EditMode

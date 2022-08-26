@@ -4,7 +4,7 @@ import { deleteMessage } from '@lib/firebase/utils';
 import { convertDate } from '@lib/date';
 import { ImageLoader } from '@components/ui/image-loader';
 import { ImageLoaderLegacy } from '@components/ui/image-loader-legacy';
-import { Skeleton } from '@components/ui/skeleton';
+import { ImageSkeleton } from '@components/ui/image-skeleton';
 import { Triangle } from '@components/ui/triangle';
 import { RiShieldFill, RiVipCrownFill } from '@assets/icons';
 import { ADMIN_ID } from './chat-room';
@@ -22,13 +22,21 @@ type ChatItemProps = Message & {
 
 const variants = [
   {
-    initial: { opacity: 0, x: -100, transition: { duration: 0.1 } },
-    animate: { opacity: 1, x: 0 },
+    initial: { opacity: 0, x: -100 },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: { type: 'spring', duration: 0.8 }
+    },
     exit: { opacity: 0, x: -100, transition: { duration: 0.2 } }
   },
   {
-    initial: { opacity: 0, x: 100, transition: { duration: 0.1 } },
-    animate: { opacity: 1, x: 0 },
+    initial: { opacity: 0, x: 100 },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: { type: 'spring', duration: 0.8 }
+    },
     exit: { opacity: 0, x: 100, transition: { duration: 0.2 } }
   }
 ];
@@ -59,6 +67,7 @@ export function ChatMessage({
 
   return (
     <motion.li
+      id={id}
       className={cn(
         'flex w-full gap-4',
         isCurrentUser && 'animate-fade flex-row-reverse self-end'
@@ -70,7 +79,7 @@ export function ChatMessage({
       exit='exit'
     >
       <ImageLoader
-        divStyle='w-10 h-10 rounded-full shrink-0'
+        divStyle='w-9 h-9 md:w-10 md:h-10 rounded-full shrink-0'
         imageStyle='rounded-full'
         src={photoURL}
         alt={name}
@@ -88,10 +97,13 @@ export function ChatMessage({
           />
         )}
         <div
-          className={cn('relative max-w-md rounded-lg bg-bubble py-2 px-4', {
-            'rounded-tr-none': isCurrentUser,
-            'rounded-tl-none': !isCurrentUser
-          })}
+          className={cn(
+            'relative max-w-md rounded-lg bg-bubble py-1.5 px-3 md:py-2 md:px-4',
+            {
+              'rounded-tr-none': isCurrentUser,
+              'rounded-tl-none': !isCurrentUser
+            }
+          )}
         >
           <Triangle isCurrentUser={isCurrentUser} />
           <div className='flex items-center gap-2'>
@@ -102,17 +114,17 @@ export function ChatMessage({
                 'text-primary': !isFromAdmin && !isFromModerator
               })}
             >
-              <p className='font-medium'>{name}</p>
+              <p className='text-sm font-medium md:text-base'>{name}</p>
               {(isFromAdmin || isFromModerator) && (
                 <i>{isFromAdmin ? <RiVipCrownFill /> : <RiShieldFill />}</i>
               )}
             </div>
-            <p className='text-sm text-secondary/80'>
+            <p className='text-xs text-secondary/80 md:text-sm'>
               {convertDate(createdAt)}
             </p>
           </div>
           {text ? (
-            <p className='whitespace-pre-line break-words text-white/80'>
+            <p className='whitespace-pre-line break-words text-sm text-white/80 md:text-base'>
               {text}
             </p>
           ) : imageData ? (
@@ -122,7 +134,7 @@ export function ChatMessage({
               onClick={openModal(imageData)}
             />
           ) : (
-            <Skeleton />
+            <ImageSkeleton />
           )}
           {editedAt && (
             <p className='py-1 text-right text-xs text-secondary/80'>

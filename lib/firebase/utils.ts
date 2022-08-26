@@ -18,7 +18,8 @@ import {
   deleteDoc,
   collection,
   getFirestore,
-  serverTimestamp
+  serverTimestamp,
+  limitToLast
 } from 'firebase/firestore';
 import {
   ref,
@@ -29,7 +30,12 @@ import {
 import { getToken, getMessaging, onMessage } from 'firebase/messaging';
 import { getFirebaseConfig } from './config';
 import { messageConverter } from './converter';
-import type { DocumentReference, DocumentData } from 'firebase/firestore';
+import type { Message } from './converter';
+import type {
+  Query,
+  DocumentData,
+  DocumentReference
+} from 'firebase/firestore';
 
 initializeApp(getFirebaseConfig());
 
@@ -40,11 +46,6 @@ export const storage = getStorage();
 export const messagesRef = collection(db, 'messages');
 export const tokensRef = collection(db, 'tokens');
 
-export const messagesQuery = query(
-  messagesRef,
-  orderBy('createdAt', 'asc')
-).withConverter(messageConverter);
-
 export function signIn(): void {
   const provider = new GoogleAuthProvider();
   void signInWithPopup(auth, provider);
@@ -52,6 +53,19 @@ export function signIn(): void {
 
 export function signOut(): void {
   void signOutAuth(auth);
+}
+
+export function getMessagesQuery(many: number): Query<Message> {
+  return query(
+    messagesRef,
+    orderBy('createdAt', 'asc'),
+    limitToLast(many)
+  ).withConverter(messageConverter);
+}
+
+export async function getMessagesSize(): Promise<number> {
+  const messages = await getDocs(messagesRef);
+  return messages.size;
 }
 
 export async function sendMessage(
@@ -154,8 +168,6 @@ export async function saveMessagingDeviceToken(): Promise<void> {
   try {
     const currentToken = await getToken(messaging);
 
-    console.log(currentToken);
-
     if (currentToken) {
       console.info('Got FCM device token:', currentToken);
 
@@ -166,8 +178,6 @@ export async function saveMessagingDeviceToken(): Promise<void> {
         uid: auth.currentUser?.uid
       });
 
-      // This will fire when a message is received while the app is in the foreground.
-      // When the app is in the background, firebase-messaging-sw.js will receive the message instead.
       onMessage(messaging, (message) => {
         const { title, icon, body } = message.notification as {
           [key: string]: string;
@@ -177,9 +187,7 @@ export async function saveMessagingDeviceToken(): Promise<void> {
           body
         });
       });
-    }
-    // Need to request permissions to show notifications.
-    else void requestNotificationsPermissions();
+    } else void requestNotificationsPermissions();
   } catch (error) {
     console.error('Unable to get messaging token.', error);
   }

@@ -4,4 +4,4 @@ admin.initializeApp();
 
 export * from './welcome-message';
 export * from './send-notifications';
-// export * from './notify-email';
+export * from './notify-email';

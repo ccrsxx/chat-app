@@ -54,15 +54,18 @@ export function Header({
             'text-green-400': isNotificationAllowed,
             'text-red-400': !isNotificationAllowed
           })}
-          Icon={
-            isNotificationAllowed ? RiNotificationFill : RiNotificationOffFill
-          }
-          label={
-            isNotificationAllowed ? 'Notifications on' : 'Notifications off'
-          }
           onClick={saveMessagingDeviceToken}
           disabled={isNotificationAllowed}
-        />
+        >
+          {isNotificationAllowed ? (
+            <RiNotificationFill />
+          ) : (
+            <RiNotificationOffFill />
+          )}
+          <span className='hidden md:block'>
+            Notification {isNotificationAllowed ? 'on' : 'off'}
+          </span>
+        </Button>
       )}
       {error ? (
         <Button Icon={RiErrorWarningLine} label='Try Again' onClick={signIn} />

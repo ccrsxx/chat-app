@@ -56,7 +56,7 @@ export function ImageModal({
               <picture className='group relative flex max-w-3xl'>
                 <source srcSet={src} type='image/*' />
                 <img
-                  className='max-h-[80vh] rounded-lg object-contain'
+                  className='max-h-[75vh] rounded-lg object-contain md:max-h-[80vh]'
                   src={src}
                   alt={alt}
                 />

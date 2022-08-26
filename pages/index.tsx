@@ -4,7 +4,8 @@ import { getDocs } from 'firebase/firestore';
 import { AnimatePresence } from 'framer-motion';
 import {
   auth,
-  messagesQuery,
+  getMessagesSize,
+  getMessagesQuery,
   saveMessagingDeviceToken
 } from '@lib/firebase/utils';
 import { useNotification } from '@lib/hooks/useNotification';
@@ -24,23 +25,30 @@ import type { MessageData, ImageData } from '@components/form/main-form';
 
 type HomeProps = {
   messagesProp: Messages;
+  messagesLength: number;
 };
 
 export async function getServerSideProps(): Promise<
   GetServerSidePropsResult<HomeProps>
 > {
-  const messagesRef = await getDocs(messagesQuery);
-  const messagesProp = messagesRef.docs.map((doc) => doc.data());
+  const messagesQuery = getMessagesQuery(20);
+  const [messages, messagesLength] = await Promise.all([
+    getDocs(messagesQuery),
+    getMessagesSize()
+  ]);
+  const messagesProp = messages.docs.map((doc) => doc.data());
 
   return {
     props: {
-      messagesProp
+      messagesProp,
+      messagesLength
     }
   };
 }
 
 export default function Home({
-  messagesProp
+  messagesProp,
+  messagesLength
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const [user, loading, error] = useAuthState(auth);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -52,8 +60,9 @@ export default function Home({
   const bottomSpan = useRef<HTMLSpanElement | null>(null);
 
   const isNotificationAllowed = useNotification();
+
   const isAtBottom = useIntersection(scrollArea, bottomSpan, {
-    rootMargin: '300px',
+    rootMargin: '0px 0px 300px',
     threshold: 1.0
   });
 
@@ -109,6 +118,7 @@ export default function Home({
           isAtBottom={isAtBottom}
           messagesProp={messagesProp}
           currentUserId={currentUserId}
+          messagesLength={messagesLength}
           openModal={openModal}
           goToEditMode={goToEditMode}
           exitEditMode={exitEditMode}
