@@ -34,6 +34,7 @@ export function MainLayout({
         <meta name='og:description' content={siteDescription} />
         <meta property='og:image' content={siteImage} />
         <meta name='og:url' content={`${siteUrl}${url ?? ''}`} />
+        <meta name='theme-color' content='#000000' />
       </Head>
       {children}
     </main>
