@@ -109,7 +109,7 @@ export default function Home({
       <MainLayout
         className='flex flex-1 flex-col overflow-hidden px-2'
         title='Chat App - A Simple Chat Room App'
-        description='Send a message here for the lulz 😁.'
+        description='Send and receive messages here.'
         image='/home.png'
       >
         <ChatRoom
