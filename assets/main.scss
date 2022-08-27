@@ -3,19 +3,29 @@
 @tailwind utilities;
 
 @layer base {
-  a {
-    @apply normalize-highlight;
+  html,
+  body {
+    @apply h-full;
+  }
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply flex min-h-screen justify-center bg-background p-4;
+  }
+
+  #__next {
+    @apply flex w-full max-w-4xl flex-col gap-4 rounded-lg bg-main p-4;
   }
 }
 
 @layer components {
-  .normalize-highlight {
-    -webkit-tap-highlight-color: transparent;
-  }
-
   .custom-button {
-    @apply normalize-highlight flex select-none items-center justify-center gap-2 rounded-lg py-2 px-3 font-medium 
-           transition duration-300 active:scale-90 active:duration-150 disabled:cursor-not-allowed;
+    @apply flex select-none items-center justify-center gap-2 rounded-lg py-2 px-3 font-medium transition duration-300 
+           active:scale-90 active:duration-150 disabled:cursor-not-allowed;
   }
 
   .smooth-tab {
@@ -25,13 +35,5 @@
 
   .smooth-hover {
     @apply hover:bg-bubble hover:text-primary;
-  }
-
-  .trim-alt {
-    @apply overflow-hidden text-ellipsis break-all [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical];
-  }
-
-  .skeleton {
-    @apply animate-pulse rounded-lg bg-white;
   }
 }

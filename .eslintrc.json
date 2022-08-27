@@ -25,7 +25,7 @@
     "jsx-quotes": ["error", "prefer-single"],
     "linebreak-style": ["error", "unix"],
     "no-console": "warn",
-    "comma-dangle": ["error", "never"],
+    "comma-dangle": "error",
     "no-unused-expressions": "error",
     "import/order": [
       "error",
@@ -40,14 +40,6 @@
           "object",
           "type"
         ]
-      }
-    ],
-    "@typescript-eslint/no-misused-promises": [
-      "error",
-      {
-        "checksVoidReturn": {
-          "attributes": false
-        }
       }
     ],
     "@typescript-eslint/consistent-type-imports": "error",

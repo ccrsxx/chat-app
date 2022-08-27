@@ -3,61 +3,46 @@ import cn from 'clsx';
 import { deleteMessage } from '@lib/firebase/utils';
 import { convertDate } from '@lib/date';
 import { ImageLoader } from '@components/ui/image-loader';
-import { ImageLoaderLegacy } from '@components/ui/image-loader-legacy';
-import { ImageSkeleton } from '@components/ui/image-skeleton';
 import { Triangle } from '@components/ui/triangle';
-import { RiShieldFill, RiVipCrownFill } from '@assets/icons';
-import { ADMIN_ID } from './chat-room';
 import { MessageOptions } from './message-options';
 import type { Message } from '@lib/firebase/converter';
-import type { ImageData } from '@components/form/main-form';
 
 type ChatItemProps = Message & {
-  isAdmin: boolean;
   currentUserId: string | null;
-  openModal: (data: ImageData) => () => void;
   goToEditMode: (docId: string, text: string) => () => void;
   exitEditMode: () => void;
 };
 
 const variants = [
   {
-    initial: { opacity: 0, x: -100 },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: { type: 'spring', duration: 0.8 }
-    },
+    initial: { opacity: 0, x: -100, transition: { duration: 0.1 } },
+    animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -100, transition: { duration: 0.2 } }
   },
   {
-    initial: { opacity: 0, x: 100 },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: { type: 'spring', duration: 0.8 }
-    },
+    initial: { opacity: 0, x: 100, transition: { duration: 0.1 } },
+    animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: 100, transition: { duration: 0.2 } }
   }
 ];
+
+const ADMIN_ID = process.env.NEXT_PUBLIC_ADMIN_ID;
 
 export function ChatMessage({
   id,
   uid,
   name,
   text,
-  isAdmin,
   photoURL,
   editedAt,
   imageData,
   createdAt,
   currentUserId,
-  openModal,
   goToEditMode,
   exitEditMode
 }: ChatItemProps): JSX.Element {
+  const isAdmin = currentUserId === ADMIN_ID;
   const isFromAdmin = uid === ADMIN_ID;
-  const isFromModerator = uid === 'firebase-bot';
   const isCurrentUser = currentUserId === uid;
 
   const deleteChat = (): void => {
@@ -67,7 +52,6 @@ export function ChatMessage({
 
   return (
     <motion.li
-      id={id}
       className={cn(
         'flex w-full gap-4',
         isCurrentUser && 'animate-fade flex-row-reverse self-end'
@@ -79,16 +63,17 @@ export function ChatMessage({
       exit='exit'
     >
       <ImageLoader
-        divStyle='w-9 h-9 md:w-10 md:h-10 rounded-full shrink-0'
+        divStyle='w-10 h-10 rounded-full shrink-0'
         imageStyle='rounded-full'
         src={photoURL}
         alt={name}
       />
       <div
-        className={cn(
-          'group flex items-center justify-end gap-4',
-          isAdmin && !isCurrentUser && 'flex-row-reverse'
-        )}
+        className={cn('group flex items-center justify-end gap-4', {
+          'flex-row-reverse': isAdmin && !isCurrentUser,
+          'rounded-tr-none': isCurrentUser,
+          'rounded-tl-none': !isCurrentUser
+        })}
       >
         {(isAdmin || isCurrentUser) && (
           <MessageOptions
@@ -97,44 +82,39 @@ export function ChatMessage({
           />
         )}
         <div
-          className={cn(
-            'relative max-w-md rounded-lg bg-bubble py-1.5 px-3 md:py-2 md:px-4',
-            {
-              'rounded-tr-none': isCurrentUser,
-              'rounded-tl-none': !isCurrentUser
-            }
-          )}
+          className={cn('relative max-w-xl rounded-lg bg-bubble py-2 px-4', {
+            'rounded-tr-none': isCurrentUser,
+            'rounded-tl-none': !isCurrentUser
+          })}
         >
           <Triangle isCurrentUser={isCurrentUser} />
           <div className='flex items-center gap-2'>
-            <div
-              className={cn('flex items-center gap-1', {
+            <p
+              className={cn('font-medium', {
                 'text-red-400': isFromAdmin,
-                'text-green-400': isFromModerator,
-                'text-primary': !isFromAdmin && !isFromModerator
+                'text-primary': !isFromAdmin
               })}
             >
-              <p className='text-sm font-medium md:text-base'>{name}</p>
-              {(isFromAdmin || isFromModerator) && (
-                <i>{isFromAdmin ? <RiVipCrownFill /> : <RiShieldFill />}</i>
-              )}
-            </div>
-            <p className='text-xs text-secondary/80 md:text-sm'>
+              {name} {isFromAdmin && '👑'}
+            </p>
+            <p className='text-sm text-secondary/80'>
               {convertDate(createdAt)}
             </p>
           </div>
           {text ? (
-            <p className='whitespace-pre-line break-words text-sm text-white/80 md:text-base'>
+            <p className='whitespace-pre-line break-words text-white/80'>
               {text}
             </p>
           ) : imageData ? (
-            <ImageLoaderLegacy
-              src={imageData.src}
-              alt={imageData.alt}
-              onClick={openModal(imageData)}
+            <ImageLoader
+              divStyle='flex h-[384px] justify-center items-center w-[384px] my-2 rounded-lg'
+              imageStyle='!min-w-0 rounded-lg !w-auto !min-h-0 !h-auto'
+              objectFit='cover'
+              src={imageData.url}
+              alt={imageData.name}
             />
           ) : (
-            <ImageSkeleton />
+            <div className='my-2 h-[384px] w-[384px] animate-pulse rounded-lg bg-white' />
           )}
           {editedAt && (
             <p className='py-1 text-right text-xs text-secondary/80'>

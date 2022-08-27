@@ -7,9 +7,4 @@ const nextConfig = {
   }
 };
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  sw: 'firebase-messaging-sw.js'
-});
-
-module.exports = withPWA(nextConfig);
+module.exports = nextConfig;

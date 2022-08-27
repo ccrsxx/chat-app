@@ -3,17 +3,15 @@ import { ImageLoader } from '@components/ui/image-loader';
 import { Button } from '@components/ui/button';
 import { RiDeleteBinLine } from '@assets/icons';
 import { variants } from './edit-mode';
-import type { ImagesData, ImageData } from './main-form';
+import type { ImagesData } from './input-box';
 
 type ImageUploadProps = {
   imagesPreview: ImagesData;
-  openModal: (data: ImageData) => () => void;
   removeImage: (targetId: number) => () => void;
 };
 
 export function ImageUpload({
   imagesPreview,
-  openModal,
   removeImage
 }: ImageUploadProps): JSX.Element {
   return (
@@ -25,7 +23,7 @@ export function ImageUpload({
       exit='exit'
     >
       <AnimatePresence initial={false}>
-        {imagesPreview.map(({ id, src, alt }) => (
+        {imagesPreview.map(({ id, src, name }) => (
           <motion.div
             className='relative flex h-56 w-56 flex-col items-center gap-2 rounded-lg bg-neutral-800 p-2'
             layout
@@ -43,15 +41,17 @@ export function ImageUpload({
             />
             <ImageLoader
               src={src}
-              alt={alt}
+              alt={name}
               divStyle='flex h-full justify-center items-center w-full'
               imageStyle='!min-w-0 rounded-lg !w-auto !min-h-0 !h-auto'
               objectFit='contain'
-              onClick={openModal({ src, alt })}
               noPlaceholder
             />
-            <p className='trim-alt mx-2 pb-0.5 text-xs text-primary/80'>
-              {alt}
+            <p
+              className='mx-2 overflow-hidden text-ellipsis break-all text-xs text-primary/80
+                         [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]'
+            >
+              {name}
             </p>
           </motion.div>
         ))}

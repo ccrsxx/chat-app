@@ -31,7 +31,7 @@ export function EditMode({
         <p>
           <button
             className='smooth-tab text-blue-400 decoration-transparent underline-offset-2
-                       hover:underline hover:decoration-blue-400 hover:brightness-110'
+                         hover:underline hover:decoration-blue-400 hover:brightness-110'
             type='button'
             onClick={exitEditMode}
           >
@@ -43,8 +43,8 @@ export function EditMode({
         <p>
           <button
             className='smooth-tab text-blue-400 decoration-transparent underline-offset-2 
-                       hover:underline hover:decoration-blue-400 hover:brightness-110
-                       disabled:cursor-not-allowed'
+                         hover:underline hover:decoration-blue-400 hover:brightness-110
+                         disabled:cursor-not-allowed'
             type='button'
             onClick={addWithIcon}
             disabled={isDisabled}

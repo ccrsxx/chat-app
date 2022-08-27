@@ -1,74 +1,55 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDocs } from 'firebase/firestore';
-import { AnimatePresence } from 'framer-motion';
-import {
-  auth,
-  getMessagesSize,
-  getMessagesQuery,
-  saveMessagingDeviceToken
-} from '@lib/firebase/utils';
-import { useNotification } from '@lib/hooks/useNotification';
+import { auth, messagesQuery } from '@lib/firebase/utils';
 import { useIntersection } from '@lib/hooks/useIntersection';
-import { Container } from '@components/common/container';
 import { MainLayout } from '@components/common/main-layout';
 import { Header } from '@components/common/header';
-import { ImageModal } from '@components/modal/image-modal';
 import { ChatRoom } from '@components/chat/chat-room';
-import { MainForm } from '@components/form/main-form';
+import { InputBox } from '@components/input/input-box';
 import type {
   GetServerSidePropsResult,
   InferGetServerSidePropsType
 } from 'next';
 import type { Messages } from '@lib/firebase/converter';
-import type { MessageData, ImageData } from '@components/form/main-form';
+import type { MessageData } from '@components/input/input-box';
 
 type HomeProps = {
   messagesProp: Messages;
-  messagesLength: number;
 };
 
 export async function getServerSideProps(): Promise<
   GetServerSidePropsResult<HomeProps>
 > {
-  const messagesQuery = getMessagesQuery(20);
-  const [messages, messagesLength] = await Promise.all([
-    getDocs(messagesQuery),
-    getMessagesSize()
-  ]);
-  const messagesProp = messages.docs.map((doc) => doc.data());
+  const messagesRef = await getDocs(messagesQuery);
+  const messagesProp = messagesRef.docs.map((doc) => doc.data());
 
   return {
     props: {
-      messagesProp,
-      messagesLength
+      messagesProp
     }
   };
 }
 
 export default function Home({
-  messagesProp,
-  messagesLength
+  messagesProp
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const [user, loading, error] = useAuthState(auth);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageData, setMessageData] = useState<MessageData | null>(null);
-  const [imageData, setImageData] = useState<ImageData | null>(null);
 
   const scrollArea = useRef<HTMLOListElement | null>(null);
   const bottomSpan = useRef<HTMLSpanElement | null>(null);
 
-  const isNotificationAllowed = useNotification();
-
   const isAtBottom = useIntersection(scrollArea, bottomSpan, {
-    rootMargin: '0px 0px 300px',
+    rootMargin: '300px',
     threshold: 1.0
   });
 
   useEffect(() => {
-    if (user) void saveMessagingDeviceToken();
-  }, [user]);
+    scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const goToEditMode = (docId: string, text: string) => (): void => {
     setMessageData({ docId, text });
@@ -88,24 +69,12 @@ export default function Home({
     );
   };
 
-  const openModal = (data: ImageData) => (): void => {
-    setIsModalOpen(true);
-    setImageData(data);
-  };
-
-  const closeModal = (): void => setIsModalOpen(false);
-
   const userInfo = user ?? null;
   const currentUserId = userInfo?.uid ?? null;
 
   return (
-    <Container>
-      <Header
-        error={error}
-        loading={loading}
-        userInfo={userInfo}
-        isNotificationAllowed={isNotificationAllowed}
-      />
+    <>
+      <Header userInfo={userInfo} loading={loading} error={error} />
       <MainLayout
         className='flex flex-1 flex-col overflow-hidden px-2'
         title='Chat App - A Simple Chat Room App'
@@ -118,26 +87,18 @@ export default function Home({
           isAtBottom={isAtBottom}
           messagesProp={messagesProp}
           currentUserId={currentUserId}
-          messagesLength={messagesLength}
-          openModal={openModal}
           goToEditMode={goToEditMode}
           exitEditMode={exitEditMode}
           scrollToBottom={scrollToBottom}
         />
-        <AnimatePresence>
-          {isModalOpen && imageData && (
-            <ImageModal imageData={imageData} closeModal={closeModal} />
-          )}
-        </AnimatePresence>
-        <MainForm
+        <InputBox
           isEditMode={isEditMode}
           messageData={messageData}
           currentUserId={currentUserId}
-          openModal={openModal}
           exitEditMode={exitEditMode}
           scrollToBottom={scrollToBottom}
         />
       </MainLayout>
-    </Container>
+    </>
   );
 }
