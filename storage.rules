@@ -3,14 +3,14 @@ service firebase.storage {
   match /b/{bucket}/o {
     function isValidImage() {
       return request.resource.contentType.matches('image/.*')
-      			 && request.resource.size < 20 * 1024 * 1024;
+             && request.resource.size < 20 * 1024 * 1024;
     }
-    
+
     function isAuthorized(uid) {
-    	return request.auth != null && request.auth.uid == uid;
+      return request.auth != null && request.auth.uid == uid;
     }
-  
-		match /images/{userId}/{fileName} {
+
+    match /images/{userId}/{fileName} {
       allow read: if true;
       allow update, delete: if false;
       allow create: if isAuthorized(userId) && isValidImage();
