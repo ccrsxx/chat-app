@@ -12,6 +12,9 @@ const IMAGE_EXTENSIONS = [
   'webp'
 ];
 
-export function isValidImage(name: string): boolean {
-  return IMAGE_EXTENSIONS.includes(name.split('.').pop() ?? '');
+export function isValidImage(name: string, bytes: number): boolean {
+  return (
+    IMAGE_EXTENSIONS.includes(name.split('.').pop() ?? '') &&
+    bytes < 10 * Math.pow(1024, 2)
+  );
 }

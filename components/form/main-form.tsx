@@ -11,7 +11,7 @@ import { isValidImage } from '@lib/file';
 import { RiImageAddLine, RiSendPlane2Line } from '@assets/icons';
 import { ImageUpload } from './image-upload';
 import { EditMode } from './edit-mode';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react';
 
 export type MessageData = {
   docId: string;
@@ -99,12 +99,16 @@ export function MainForm({
     target: { value }
   }: KeyboardEvent<HTMLTextAreaElement>): void => setInputValue(value);
 
-  const handleImageUpload = ({
-    target: { files }
-  }: ChangeEvent<HTMLInputElement>): void => {
+  const handleImageUpload = (
+    e: ChangeEvent<HTMLInputElement> | ClipboardEvent<HTMLTextAreaElement>
+  ): void => {
+    const files = 'clipboardData' in e ? e.clipboardData.files : e.target.files;
+
     if (!files || !files.length) return;
 
-    const rawImages = [...files].filter(({ name }) => isValidImage(name));
+    const rawImages = [...files].filter(({ name, size }) =>
+      isValidImage(name, size)
+    );
 
     const imagesId = rawImages.map((_, index) =>
       Math.floor(Date.now() + Math.random() + index)
@@ -211,6 +215,7 @@ export function MainForm({
           maxRows={isUploadingImages ? 5 : 10}
           onChange={handleChange}
           onKeyDown={handleSubmit}
+          onPaste={handleImageUpload}
           value={inputValue}
           disabled={!currentUserId}
           ref={inputElement}
