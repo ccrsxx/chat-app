@@ -6,13 +6,14 @@ import type {
   QueryDocumentSnapshot,
   FirestoreDataConverter
 } from 'firebase/firestore';
+import type { ImageData } from '@components/form/main-form';
 
 export type Message = {
   id: string;
   name: string;
   text: string | null;
   photoURL: string;
-  imageData: { url: string; name: string } | null;
+  imageData: ImageData | null;
   createdAt: number;
   editedAt: number | null;
   uid: string;

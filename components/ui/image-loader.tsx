@@ -12,6 +12,7 @@ type ImageLoaderProps = {
   draggable?: boolean;
   imageStyle?: string;
   noPlaceholder?: boolean;
+  onClick?: () => void;
 };
 
 export function ImageLoader({
@@ -22,7 +23,8 @@ export function ImageLoader({
   objectFit,
   draggable,
   imageStyle,
-  noPlaceholder
+  noPlaceholder,
+  onClick
 }: ImageLoaderProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -37,13 +39,17 @@ export function ImageLoader({
       )}
     >
       <Image
-        className={imageStyle}
+        className={cn(
+          imageStyle,
+          onClick && 'cursor-pointer transition hover:brightness-75'
+        )}
         src={src}
         alt={alt}
         draggable={draggable}
         objectFit={objectFit}
         layout='fill'
         onLoadingComplete={!noPlaceholder ? handleLoad : undefined}
+        onClick={onClick}
       />
       {children}
     </div>

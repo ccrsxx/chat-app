@@ -35,4 +35,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# service worker
+**/public/workbox-*.js*
+**/public/firebase-messaging-sw.js*
+**/public/worker-*.js

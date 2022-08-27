@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function isAdmin() {
+      return request.auth.uid in ['firebase-bot', '8Hm2WF97HxVye8YQG7mbsyjMz3o2'];
+    }
+  
+  	function isAuthorized(uid) {
+      return request.auth != null && (uid == request.auth.uid || isAdmin());
+    }
+    
+    function isValidText(text) {
+      return text is string || text == null;
+    }
+    
+    function isValidImage(image) {
+    	return (image is map && image.alt is string && image.src is string) || image == null;
+    }
+  
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create, update: if isAuthorized(request.resource.data.uid)
+      											&& isValidText(request.resource.data.text)
+                            && isValidImage(request.resource.data.imageData);
+      allow delete: if isAuthorized(resource.data.uid);
+    }
+    
+    match /tokens/{tokenId} {
+      allow read, delete: if false;
+      allow create, update: if isAuthorized(request.resource.data.uid);
+    }
+  }
+}

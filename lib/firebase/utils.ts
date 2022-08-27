@@ -11,12 +11,15 @@ import {
   doc,
   query,
   addDoc,
+  setDoc,
+  getDocs,
   orderBy,
   updateDoc,
   deleteDoc,
   collection,
   getFirestore,
-  serverTimestamp
+  serverTimestamp,
+  limitToLast
 } from 'firebase/firestore';
 import {
   ref,
@@ -24,22 +27,24 @@ import {
   getDownloadURL,
   uploadBytesResumable
 } from 'firebase/storage';
+import { getToken, getMessaging, onMessage } from 'firebase/messaging';
 import { getFirebaseConfig } from './config';
 import { messageConverter } from './converter';
-import type { DocumentReference, DocumentData } from 'firebase/firestore';
+import type { Message } from './converter';
+import type {
+  Query,
+  DocumentData,
+  DocumentReference
+} from 'firebase/firestore';
 
 initializeApp(getFirebaseConfig());
 
+export const auth = getAuth();
 export const db = getFirestore();
 export const storage = getStorage();
-export const auth = getAuth();
 
 export const messagesRef = collection(db, 'messages');
-
-export const messagesQuery = query(
-  messagesRef,
-  orderBy('createdAt', 'asc')
-).withConverter(messageConverter);
+export const tokensRef = collection(db, 'tokens');
 
 export function signIn(): void {
   const provider = new GoogleAuthProvider();
@@ -48,6 +53,19 @@ export function signIn(): void {
 
 export function signOut(): void {
   void signOutAuth(auth);
+}
+
+export function getMessagesQuery(many: number): Query<Message> {
+  return query(
+    messagesRef,
+    orderBy('createdAt', 'asc'),
+    limitToLast(many)
+  ).withConverter(messageConverter);
+}
+
+export async function getMessagesSize(): Promise<number> {
+  const messages = await getDocs(messagesRef);
+  return messages.size;
 }
 
 export async function sendMessage(
@@ -110,31 +128,78 @@ export async function sendImages(
       messagesRef.map(async ({ messageRef, image }) => {
         const imageName = image.name;
 
-        const filepath = `images/${imageName}`;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const filepath = `images/${auth.currentUser!.uid}/${imageName}`;
         const imageRef = ref(storage, filepath);
 
         let publicImageUrl: string;
 
         try {
           publicImageUrl = await getDownloadURL(imageRef);
-        } catch (error) {
-          console.error(error);
+        } catch {
           await uploadBytesResumable(imageRef, image);
           publicImageUrl = await getDownloadURL(imageRef);
         }
 
         await updateDoc(messageRef, {
           imageData: {
-            url: publicImageUrl,
-            name: imageName
+            src: publicImageUrl,
+            alt: imageName
           }
         });
       })
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(
       'There was an error sending the images to the server:',
       error
     );
   }
+}
+
+export async function deleteAllMessages(): Promise<void> {
+  const docsRef = await getDocs(messagesRef);
+  await Promise.all(docsRef.docs.map(({ id }) => deleteMessage(id)));
+}
+
+export async function saveMessagingDeviceToken(): Promise<void> {
+  const messaging = getMessaging();
+
+  try {
+    const currentToken = await getToken(messaging);
+
+    if (currentToken) {
+      console.info('Got FCM device token:', currentToken);
+
+      const tokenRef = doc(tokensRef, currentToken);
+
+      await setDoc(tokenRef, {
+        name: auth.currentUser?.displayName,
+        uid: auth.currentUser?.uid
+      });
+
+      onMessage(messaging, (message) => {
+        const { title, icon, body } = message.notification as {
+          [key: string]: string;
+        };
+        new Notification(title, {
+          icon,
+          body
+        });
+      });
+    } else void requestNotificationsPermissions();
+  } catch (error) {
+    console.error('Unable to get messaging token.', error);
+  }
+}
+
+async function requestNotificationsPermissions(): Promise<void> {
+  console.info('Requesting notifications permission...');
+  const permission = await Notification.requestPermission();
+
+  if (permission === 'granted') {
+    console.info('Notification permission granted.');
+    await saveMessagingDeviceToken();
+  } else console.error('Unable to get permission to notify.');
 }

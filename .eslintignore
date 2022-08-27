@@ -7,3 +7,6 @@ postcss.config.js
 
 # jest config
 jest.config.js
+
+# service worker
+/public/notification-sw.js
