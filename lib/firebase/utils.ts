@@ -128,7 +128,8 @@ export async function sendImages(
       messagesRef.map(async ({ messageRef, image }) => {
         const imageName = image.name;
 
-        const filepath = `images/${imageName}`;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const filepath = `images/${auth.currentUser!.uid}/${imageName}`;
         const imageRef = ref(storage, filepath);
 
         let publicImageUrl: string;

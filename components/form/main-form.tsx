@@ -65,6 +65,7 @@ export function MainForm({
 
   useEffect(() => {
     if (!currentUserId) {
+      cleanImages();
       exitEditMode();
       setInputValue('');
     }
@@ -84,7 +85,7 @@ export function MainForm({
       exitEditMode();
     } else {
       if (isUploadingImages) {
-        void sendImages(text, selectedImages);
+        void sendImages(inputValue, selectedImages);
         cleanImages();
         scrollToBottom(true, 500);
         scrollToBottom(undefined, 1000);
@@ -102,6 +103,8 @@ export function MainForm({
   const handleImageUpload = (
     e: ChangeEvent<HTMLInputElement> | ClipboardEvent<HTMLTextAreaElement>
   ): void => {
+    if (!currentUserId || isEditMode) return;
+
     const files = 'clipboardData' in e ? e.clipboardData.files : e.target.files;
 
     if (!files || !files.length) return;
