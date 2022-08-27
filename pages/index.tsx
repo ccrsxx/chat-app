@@ -31,12 +31,11 @@ type HomeProps = {
 export async function getServerSideProps(): Promise<
   GetServerSidePropsResult<HomeProps>
 > {
-  const messagesQuery = getMessagesQuery(20);
-  const [messages, messagesLength] = await Promise.all([
-    getDocs(messagesQuery),
+  const [messagesSnapshot, messagesLength] = await Promise.all([
+    getDocs(getMessagesQuery(20)),
     getMessagesSize()
   ]);
-  const messagesProp = messages.docs.map((doc) => doc.data());
+  const messagesProp = messagesSnapshot.docs.map((doc) => doc.data());
 
   return {
     props: {

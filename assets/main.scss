@@ -19,8 +19,7 @@
   }
 
   .smooth-tab {
-    @apply rounded-lg outline-none transition focus:ring-offset-background focus-visible:ring-2 
-           focus-visible:ring-white focus-visible:ring-offset-2;
+    @apply rounded-lg outline-none transition focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-background;
   }
 
   .smooth-hover {

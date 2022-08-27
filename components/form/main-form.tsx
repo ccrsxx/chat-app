@@ -196,22 +196,23 @@ export function MainForm({
               disabled={!currentUserId}
               multiple
             />
-            <label
-              htmlFor='image-upload'
-              className='custom-button smooth-hover cursor-pointer self-end bg-neutral-800 py-3 text-secondary 
-                         hover:bg-neutral-800 hover:brightness-110 peer-enabled:hover:text-primary
-                         peer-disabled:cursor-not-allowed peer-disabled:brightness-90 peer-disabled:hover:brightness-100'
+            <Button
+              className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-current
+                         hover:brightness-110 peer-enabled:hover:text-primary peer-disabled:cursor-not-allowed 
+                         peer-disabled:brightness-90 peer-disabled:hover:brightness-100'
             >
-              <RiImageAddLine />
-            </label>
+              <label htmlFor='image-upload'>
+                <RiImageAddLine />
+              </label>
+            </Button>
           </>
         )}
         <TextareaAutosize
           className='text-secondary-500 focus:shadow-outline w-full resize-none rounded-lg border-none 
                      bg-neutral-800 py-2 px-3 text-secondary placeholder-neutral-500 outline-none
-                     transition-all hover:brightness-110 hover:duration-300 focus:border-neutral-900 
-                     focus:text-primary/80 focus:brightness-[1.15] active:scale-[0.98] active:duration-150
-                     disabled:cursor-not-allowed disabled:brightness-90 disabled:hover:brightness-100'
+                     transition-all hover:brightness-110 hover:duration-300 focus:text-primary/80 
+                     focus:brightness-[1.15] active:scale-[0.98] active:duration-150 disabled:cursor-not-allowed 
+                     disabled:brightness-90 disabled:hover:brightness-100'
           placeholder={
             currentUserId ? 'Send a message' : 'Sign in to send a message'
           }

@@ -127,6 +127,7 @@ export function ChatRoom({
             iconStyle='animate-spin'
             Icon={FaFan}
             onClick={deleteAllMessages}
+            tabIndex={-1}
           />
         </div>
       )}

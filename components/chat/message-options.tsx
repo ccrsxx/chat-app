@@ -13,22 +13,19 @@ export function MessageOptions({
 }: MessageOptionsProps): JSX.Element {
   return (
     <div
-      className='flex translate-x-4 flex-col rounded-lg transition
-                 group-hover:translate-x-0 group-hover:bg-bubble 
-                 inner:opacity-0 inner:group-hover:opacity-100'
+      className='flex translate-x-4 flex-col rounded-lg text-primary/80 transition focus-within:translate-x-0
+                 focus-within:bg-bubble group-hover:translate-x-0 group-hover:bg-bubble inner:!p-2 inner:text-sm
+                 inner:opacity-0 inner:focus-within:opacity-100 inner:group-hover:opacity-100'
     >
       {goToEditMode && (
         <Button
-          className='rounded-b-none !p-2 text-sm text-primary/80 hover:bg-blue-400'
+          className='rounded-b-none hover:bg-blue-400'
           Icon={RiEditLine}
           onClick={goToEditMode}
         />
       )}
       <Button
-        className={cn(
-          '!p-2 text-sm text-primary/80 hover:bg-red-400',
-          goToEditMode && 'rounded-t-none'
-        )}
+        className={cn('hover:bg-red-400', goToEditMode && 'rounded-t-none')}
         Icon={RiDeleteBinLine}
         onClick={deleteMessage}
       />
