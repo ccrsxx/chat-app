@@ -17,9 +17,9 @@ import {
   updateDoc,
   deleteDoc,
   collection,
+  limitToLast,
   getFirestore,
-  serverTimestamp,
-  limitToLast
+  serverTimestamp
 } from 'firebase/firestore';
 import {
   ref,
@@ -27,7 +27,7 @@ import {
   getDownloadURL,
   uploadBytesResumable
 } from 'firebase/storage';
-import { getToken, getMessaging, onMessage } from 'firebase/messaging';
+import { getToken, getMessaging } from 'firebase/messaging';
 import { getFirebaseConfig } from './config';
 import { messageConverter } from './converter';
 import type { Message } from './converter';
@@ -164,10 +164,8 @@ export async function deleteAllMessages(): Promise<void> {
 }
 
 export async function saveMessagingDeviceToken(): Promise<void> {
-  const messaging = getMessaging();
-
   try {
-    const currentToken = await getToken(messaging);
+    const currentToken = await getToken(getMessaging());
 
     if (currentToken) {
       console.info('Got FCM device token:', currentToken);
@@ -177,16 +175,6 @@ export async function saveMessagingDeviceToken(): Promise<void> {
       await setDoc(tokenRef, {
         name: auth.currentUser?.displayName,
         uid: auth.currentUser?.uid
-      });
-
-      onMessage(messaging, (message) => {
-        const { title, icon, body } = message.notification as {
-          [key: string]: string;
-        };
-        new Notification(title, {
-          icon,
-          body
-        });
       });
     } else void requestNotificationsPermissions();
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDocs } from 'firebase/firestore';
+import { getMessaging, onMessage } from 'firebase/messaging';
 import { AnimatePresence } from 'framer-motion';
 import {
   auth,
@@ -69,8 +70,26 @@ export default function Home({
     if (user) void saveMessagingDeviceToken();
   }, [user]);
 
-  const goToEditMode = (docId: string, text: string) => (): void => {
-    setMessageData({ docId, text });
+  useEffect(() => {
+    let unsubscribe: () => void | undefined;
+
+    if (user)
+      unsubscribe = onMessage(getMessaging(), (message) => {
+        if (isAtBottom) return;
+        const { title, icon, body } = message.notification as {
+          [key: string]: string;
+        };
+        new Notification(title, {
+          icon,
+          body
+        });
+      });
+
+    return () => unsubscribe && unsubscribe();
+  }, [user, isAtBottom]);
+
+  const goToEditMode = (docId: string, docText: string) => (): void => {
+    setMessageData({ docId, docText });
     setIsEditMode(true);
   };
 

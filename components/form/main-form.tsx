@@ -6,6 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
 import cn from 'clsx';
 import { Button } from '@components/ui/button';
+import { useWindowSize } from '@lib/hooks/useWindowSize';
 import { editMessage, sendMessage, sendImages } from '@lib/firebase/utils';
 import { isValidImage } from '@lib/file';
 import { RiImageAddLine, RiSendPlane2Line } from '@assets/icons';
@@ -15,7 +16,7 @@ import type { ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react';
 
 export type MessageData = {
   docId: string;
-  text: string;
+  docText: string;
 };
 
 export type ImageData = {
@@ -48,14 +49,15 @@ export function MainForm({
   exitEditMode,
   scrollToBottom
 }: InputBoxProps): JSX.Element {
-  const { docId, text: docText } = messageData ?? {};
-
   const [inputValue, setInputValue] = useState('');
   const [selectedImages, setSelectedImages] = useState<FilesWithId>([]);
   const [imagesPreview, setImagesPreview] = useState<ImagesData>([]);
 
   const inputElement = useRef<HTMLTextAreaElement | null>(null);
 
+  const isMobile = useWindowSize();
+
+  const { docId, docText } = messageData ?? {};
   const isUploadingImages = !!imagesPreview.length;
 
   useEffect(
@@ -157,7 +159,7 @@ export function MainForm({
     URL.revokeObjectURL(src);
   };
 
-  const addWithIcon = (): void => addMessage(inputValue);
+  const addWithIcon = (): void => addMessage(inputValue.trim());
 
   const cleanImages = (): void => {
     setSelectedImages([]);
@@ -172,6 +174,7 @@ export function MainForm({
       <AnimatePresence>
         {isEditMode ? (
           <EditMode
+            isMobile={isMobile}
             isDisabled={isDisabled}
             addWithIcon={addWithIcon}
             exitEditMode={exitEditMode}
@@ -189,7 +192,7 @@ export function MainForm({
           <>
             <input
               id='image-upload'
-              className='peer hidden'
+              className='hidden'
               type='file'
               accept='image/*'
               onChange={handleImageUpload}
@@ -198,8 +201,9 @@ export function MainForm({
             />
             <Button
               className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-current
-                         hover:brightness-110 peer-enabled:hover:text-primary peer-disabled:cursor-not-allowed 
-                         peer-disabled:brightness-90 peer-disabled:hover:brightness-100'
+                         hover:text-secondary hover:brightness-110 enabled:hover:text-primary disabled:cursor-not-allowed
+                         disabled:brightness-90 disabled:hover:brightness-100 inner:disabled:cursor-not-allowed'
+              disabled={!currentUserId}
             >
               <label htmlFor='image-upload'>
                 <RiImageAddLine />
@@ -218,7 +222,7 @@ export function MainForm({
           }
           maxRows={isUploadingImages ? 5 : 10}
           onChange={handleChange}
-          onKeyDown={handleSubmit}
+          onKeyDown={!isMobile ? handleSubmit : undefined}
           onPaste={handleImageUpload}
           value={inputValue}
           disabled={!currentUserId}

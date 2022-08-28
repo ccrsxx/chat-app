@@ -131,7 +131,7 @@ export function ChatRoom({
           />
         </div>
       )}
-      <div className='flex flex-col gap-3 md:gap-4'>
+      <div className='grid grid-flow-row auto-rows-min gap-3 md:gap-4'>
         <ChatSkeleton
           topSkeleton={topSkeleton}
           visible={!isReachedLimit && !!(messagesSize && messagesSize >= 20)}

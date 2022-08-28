@@ -49,33 +49,43 @@ function Skeleton({ image, edit }: SkeletonProps): JSX.Element {
     <li className='flex w-full gap-4'>
       <div className='skeleton h-10 w-10 shrink-0 rounded-full' />
       <div className='group flex items-center justify-end gap-4'>
-        <div className='relative flex max-w-md flex-col gap-2 rounded-lg rounded-tl-none bg-bubble py-3 px-4'>
+        <div
+          className='relative max-w-md rounded-lg rounded-tl-none 
+                     bg-bubble py-2 px-3 md:py-3 md:px-4'
+        >
           <Triangle isCurrentUser={false} />
-          <div className='flex items-center'>
-            <p className='skeleton font-medium text-transparent'>
+          <div className='flex items-center gap-2'>
+            <p className='skeleton text-sm font-medium text-transparent md:text-base'>
               Lorem, ipsum.
             </p>
+            <p className='skeleton text-xs text-transparent md:text-sm'>
+              Lorem, ipsum dolor.
+            </p>
           </div>
-          {image ? (
-            <ImageSkeleton />
-          ) : (
-            <p
-              className={cn(
-                'skeleton whitespace-pre-line break-words text-transparent',
-                !edit && 'mb-1'
-              )}
-            >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam
-              aliquid accusamus facere distinctio sit cumque sunt. Reprehenderit
-              ipsa, quo, suscipit quasi animi explicabo magni fugit incidunt, ea
-              quam accusamus eligendi.
-            </p>
-          )}
-          {edit && (
-            <p className='skeleton self-end text-right text-xs text-transparent'>
-              Lorem ipsum dolor sit.
-            </p>
-          )}
+          <div className='mt-2 flex flex-col gap-2'>
+            {image ? (
+              <div className='-mb-1 -mt-2'>
+                <ImageSkeleton />
+              </div>
+            ) : (
+              <p
+                className={cn(
+                  'skeleton whitespace-pre-line break-words text-sm text-transparent md:text-base',
+                  !edit && 'mb-1'
+                )}
+              >
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam
+                aliquid accusamus facere distinctio sit cumque sunt.
+                Reprehenderit ipsa, quo, suscipit quasi animi explicabo magni
+                fugit incidunt, ea quam accusamus eligendi.
+              </p>
+            )}
+            {edit && (
+              <p className='skeleton self-end text-right text-xs text-transparent'>
+                Lorem ipsum dolor sit.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </li>
