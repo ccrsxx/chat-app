@@ -14,8 +14,8 @@ export function MessageOptions({
   return (
     <div
       className='flex translate-x-4 flex-col rounded-lg text-primary/80 transition focus-within:translate-x-0
-                 focus-within:bg-bubble group-hover:translate-x-0 group-hover:bg-bubble inner:!p-2 inner:text-sm
-                 inner:opacity-0 inner:focus-within:opacity-100 inner:group-hover:opacity-100'
+                 focus-within:bg-bubble group-hover:translate-x-0 group-hover:bg-bubble inner:!p-1.5 inner:text-sm
+                 inner:opacity-0 inner:focus-within:opacity-100 inner:group-hover:opacity-100 md:inner:!p-2'
     >
       {goToEditMode && (
         <Button

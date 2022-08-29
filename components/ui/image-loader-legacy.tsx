@@ -30,7 +30,7 @@ export function ImageLoaderLegacy({
         <picture className='flex max-h-[320px] justify-center md:max-h-[416px]'>
           <source srcSet={src} type='image/*' />
           <img
-            className='cursor-pointer rounded-lg object-cover transition hover:brightness-75'
+            className='normalize-highlight cursor-pointer rounded-lg object-cover transition hover:brightness-75'
             src={src}
             alt={alt}
             onClick={onClick}
