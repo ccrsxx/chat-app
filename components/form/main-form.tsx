@@ -199,13 +199,13 @@ export function MainForm({
               disabled={!currentUserId}
               multiple
             />
-            <Button
-              className='self-end bg-neutral-800 py-3 text-secondary hover:bg-neutral-800 hover:text-current
-                         hover:text-secondary hover:brightness-110 enabled:hover:text-primary disabled:cursor-not-allowed
-                         disabled:brightness-90 disabled:hover:brightness-100 inner:disabled:cursor-not-allowed'
-              disabled={!currentUserId}
-            >
-              <label htmlFor='image-upload'>
+            <Button className='group !p-0' disabled={!currentUserId}>
+              <label
+                className='cursor-pointer self-end rounded-lg bg-neutral-800 p-3 text-secondary hover:bg-neutral-800
+                           hover:text-current hover:text-secondary hover:brightness-110 group-enabled:hover:text-primary
+                           group-disabled:cursor-not-allowed group-disabled:brightness-90 group-disabled:hover:brightness-100'
+                htmlFor='image-upload'
+              >
                 <RiImageAddLine />
               </label>
             </Button>
