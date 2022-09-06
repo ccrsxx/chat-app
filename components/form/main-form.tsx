@@ -53,7 +53,8 @@ export function MainForm({
   const [selectedImages, setSelectedImages] = useState<FilesWithId>([]);
   const [imagesPreview, setImagesPreview] = useState<ImagesData>([]);
 
-  const inputElement = useRef<HTMLTextAreaElement | null>(null);
+  const inputElement = useRef<HTMLTextAreaElement>(null);
+  const inputFileElement = useRef<HTMLInputElement>(null);
 
   const isMobile = useWindowSize();
 
@@ -136,6 +137,8 @@ export function MainForm({
     inputElement.current?.focus();
   };
 
+  const handleImageUploadClick = (): void => inputFileElement.current?.click();
+
   const handleSubmit = (e: KeyboardEvent<HTMLTextAreaElement>): void => {
     const { key, shiftKey } = e;
 
@@ -191,23 +194,22 @@ export function MainForm({
         {!isEditMode && (
           <>
             <input
-              id='image-upload'
               className='hidden'
               type='file'
               accept='image/*'
               onChange={handleImageUpload}
               disabled={!currentUserId}
+              ref={inputFileElement}
               multiple
             />
-            <Button className='group !p-0' disabled={!currentUserId}>
-              <label
-                className='cursor-pointer self-end rounded-lg bg-neutral-800 p-3 text-secondary hover:bg-neutral-800
-                           hover:text-current hover:text-secondary hover:brightness-110 group-enabled:hover:text-primary
-                           group-disabled:cursor-not-allowed group-disabled:brightness-90 group-disabled:hover:brightness-100'
-                htmlFor='image-upload'
-              >
-                <RiImageAddLine />
-              </label>
+            <Button
+              className='cursor-pointer self-end rounded-lg bg-neutral-800 p-3 text-secondary hover:bg-neutral-800
+                         hover:text-current hover:text-secondary hover:brightness-110 enabled:hover:text-primary
+                         disabled:cursor-not-allowed disabled:brightness-90 disabled:hover:brightness-100'
+              onClick={handleImageUploadClick}
+              disabled={!currentUserId}
+            >
+              <RiImageAddLine />
             </Button>
           </>
         )}

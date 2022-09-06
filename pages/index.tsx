@@ -56,8 +56,8 @@ export default function Home({
   const [messageData, setMessageData] = useState<MessageData | null>(null);
   const [imageData, setImageData] = useState<ImageData | null>(null);
 
-  const scrollArea = useRef<HTMLOListElement | null>(null);
-  const bottomSpan = useRef<HTMLSpanElement | null>(null);
+  const scrollArea = useRef<HTMLOListElement>(null);
+  const bottomSpan = useRef<HTMLSpanElement>(null);
 
   const isNotificationAllowed = useNotification();
 

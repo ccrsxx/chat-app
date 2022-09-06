@@ -53,7 +53,7 @@ export function ChatRoom({
     getMessagesQuery(messageLimit)
   );
 
-  const topSkeleton = useRef<HTMLDivElement | null>(null);
+  const topSkeleton = useRef<HTMLDivElement>(null);
 
   const isAtTop = useIntersection(scrollArea, topSkeleton, {
     rootMargin: '100px 0px 0px',
