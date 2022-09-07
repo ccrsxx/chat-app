@@ -120,11 +120,12 @@ export function MainForm({
       Math.floor(Date.now() + Math.random() + index)
     );
 
-    setSelectedImages(
-      rawImages.map((image, index) =>
+    setSelectedImages([
+      ...selectedImages,
+      ...rawImages.map((image, index) =>
         Object.assign(image, { id: imagesId[index] })
       )
-    );
+    ]);
 
     const imagesData = rawImages.map((image, index) => ({
       id: imagesId[index],
@@ -192,7 +193,13 @@ export function MainForm({
       </AnimatePresence>
       <div className='flex gap-4'>
         {!isEditMode && (
-          <>
+          <Button
+            className='cursor-pointer self-end rounded-lg bg-neutral-800 p-3 text-secondary hover:bg-neutral-800
+                       hover:text-current hover:text-secondary hover:brightness-110 enabled:hover:text-primary
+                       disabled:cursor-not-allowed disabled:brightness-90 disabled:hover:brightness-100'
+            onClick={handleImageUploadClick}
+            disabled={!currentUserId}
+          >
             <input
               className='hidden'
               type='file'
@@ -202,16 +209,8 @@ export function MainForm({
               ref={inputFileElement}
               multiple
             />
-            <Button
-              className='cursor-pointer self-end rounded-lg bg-neutral-800 p-3 text-secondary hover:bg-neutral-800
-                         hover:text-current hover:text-secondary hover:brightness-110 enabled:hover:text-primary
-                         disabled:cursor-not-allowed disabled:brightness-90 disabled:hover:brightness-100'
-              onClick={handleImageUploadClick}
-              disabled={!currentUserId}
-            >
-              <RiImageAddLine />
-            </Button>
-          </>
+            <RiImageAddLine />
+          </Button>
         )}
         <TextareaAutosize
           className='text-secondary-500 focus:shadow-outline w-full resize-none rounded-lg border-none 
